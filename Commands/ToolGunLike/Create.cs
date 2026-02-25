@@ -110,5 +110,5 @@ public class Create : ICommand
 		return true;
 	}
 
-	private static Config Config => ProjectMER.Singleton.Config!;
+	private static Config Config => ProjectMer.Singleton.Config!;
 }

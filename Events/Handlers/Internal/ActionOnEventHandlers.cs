@@ -11,16 +11,14 @@ namespace ProjectMER.Events.Handlers.Internal;
 
 public class ActionOnEventHandlers : CustomEventsHandler
 {
-	private static Config Config => ProjectMER.Singleton.Config!;
-
-	public override void OnServerWaitingForPlayers() => Timing.CallDelayed(0.1f, () => HandleActionList(Config.OnWaitingForPlayers));
+	private static Config Config => ProjectMer.Singleton.Config!;
 	public override void OnServerRoundStarted() => HandleActionList(Config.OnRoundStarted);
 	public override void OnServerLczDecontaminationStarted() => HandleActionList(Config.OnLczDecontaminationStarted);
 	public override void OnWarheadStarted(WarheadStartedEventArgs ev) => HandleActionList(Config.OnWarheadStarted);
 	public override void OnWarheadStopped(WarheadStoppedEventArgs ev) => HandleActionList(Config.OnWarheadStopped);
 	public override void OnWarheadDetonated(WarheadDetonatedEventArgs ev) => HandleActionList(Config.OnWarheadDetonated);
 
-	private void HandleActionList(List<string> list)
+	internal void HandleActionList(List<string> list)
 	{
 		foreach (string element in list)
 		{
@@ -33,7 +31,7 @@ public class ActionOnEventHandlers : CustomEventsHandler
 				case "load":
 				case "l":
 					{
-						List<string> allMaps = ListPool<string>.Shared.Rent(Directory.GetFiles(ProjectMER.MapsDir).Select(Path.GetFileNameWithoutExtension));
+						List<string> allMaps = ListPool<string>.Shared.Rent(Directory.GetFiles(ProjectMer.MapsDir).Select(Path.GetFileNameWithoutExtension));
 						HandleMapLoading(argument, allMaps);
 						ListPool<string>.Shared.Return(allMaps);
 						continue;

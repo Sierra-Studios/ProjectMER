@@ -59,6 +59,52 @@ public static class PrefabManager
 	public static WaypointToy Waypoint { get; private set; }
 	public static SpawnableCullingParent CullingParent { get; private set; }
 
+	public static void UnregisterPrefabs()
+	{
+		PrimitiveObject = null;
+		LightSource = null;
+		DoorLcz  = null;
+		DoorHcz  = null;
+		DoorEz  = null;
+		DoorHeavyBulk  = null;
+		DoorGate  = null;
+
+		Workstation = null;
+		Capybara = null;
+		Text = null;
+		Interactable  = null;
+
+		CameraLcz  = null;
+		CameraHcz  = null;
+		CameraSz  = null;
+		CameraEzArm  = null;
+		CameraEz  = null;
+
+		ShootingTargetSport = null;
+		ShootingTargetDBoy  = null;
+		ShootingTargetBinary = null;
+
+		PedestalScp018 = null;
+		PedstalScp207 = null;
+		PedestalScp244 = null;
+		PedestalScp268 = null;
+		LockerLargeGun = null;
+		LockerRifleRack = null;
+		LockerMisc  = null;
+		LockerRegularMedkit  = null;
+		LockerAdrenalineMedkit  = null;
+		PedestalScp500  = null;
+		PedstalScp1853  = null;
+		PedestalScp2176  = null;
+		PedestalScp1576  = null;
+		PedestalAntiScp207  = null;
+		PedestalScp1344  = null;
+		LockerExperimentalWeapon  = null;
+
+		Waypoint  = null;
+		CullingParent  = null;
+	}
+	
 	public static void RegisterPrefabs()
 	{
 		foreach (GameObject gameObject in NetworkClient.prefabs.Values)

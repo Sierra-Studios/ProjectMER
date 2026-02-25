@@ -102,9 +102,6 @@ public class Modify : ICommand
 		response = "You've successfully modified the object!";
 		return true;
 
-
-
-
 		bool HandleMap(out string response)
 		{
 			if (arguments.Count < 2)

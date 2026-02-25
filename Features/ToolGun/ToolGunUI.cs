@@ -44,12 +44,12 @@ public static class ToolGunUI
 		}
 
 		foreach (string property in properties.GetColoredProperties(instance))
-			{
-				sb.Append($"<size=50%>");
-				sb.Append(property);
-				sb.Append("</size>");
-				sb.AppendLine();
-			}
+		{
+			sb.Append($"<size=50%>");
+			sb.Append(property);
+			sb.Append("</size>");
+			sb.AppendLine();
+		}
 
 		if (offset > 0)
 			sb.AppendLine();

@@ -11,27 +11,38 @@ using ProjectMER.Features;
 
 namespace ProjectMER;
 
-public class ProjectMER : Plugin<Config>
+// ReSharper disable once ClassNeverInstantiated.Global
+public class ProjectMer : Plugin<Config>
 {
-	private Harmony _harmony;
-	private FileSystemWatcher _mapFileSystemWatcher;
+	public override string Name => "ProjectMER";
 
-	public static ProjectMER Singleton { get; private set; }
+	public override string Description => "Map Editor for the Exiled framework.";
+
+	public override string Author => "Michal78900";
+
+	public override Version Version => new Version(1, 0, 0);
+
+	public override Version RequiredApiVersion => new Version(1, 1, 5);
+	
+	internal Harmony? Harmony;
+	internal FileSystemWatcher? MapFileSystemWatcher;
+
+	public static ProjectMer? Singleton { get; internal set; }
 
 	/// <summary>
 	/// Gets the MapEditorReborn parent folder path.
 	/// </summary>
-	public static string PluginDir { get; private set; }
+	public static string PluginDir { get; internal set; }
 
 	/// <summary>
 	/// Gets the folder path in which the maps are stored.
 	/// </summary>
-	public static string MapsDir { get; private set; }
+	public static string MapsDir { get; internal set; }
 
 	/// <summary>
 	/// Gets the folder path in which the schematics are stored.
 	/// </summary>
-	public static string SchematicsDir { get; private set; }
+	public static string SchematicsDir { get; internal set; }
 
 	public GenericEventsHandler GenericEventsHandler { get; } = new();
 
@@ -43,56 +54,15 @@ public class ProjectMER : Plugin<Config>
 
 	public override void Enable()
 	{
-		Singleton = this;
-		_harmony = new Harmony($"michal78900.mapEditorReborn-{DateTime.Now.Ticks}");
-		_harmony.PatchAll();
-
-		PluginDir = Path.Combine(PathManager.Configs.FullName, "ProjectMER");
-		MapsDir = Path.Combine(PluginDir, "Maps");
-		SchematicsDir = Path.Combine(PluginDir, "Schematics");
-
-		if (!Directory.Exists(PluginDir))
-		{
-			Logger.Warn("Plugin directory does not exist. Creating...");
-			Directory.CreateDirectory(PluginDir);
-		}
-
-		if (!Directory.Exists(MapsDir))
-		{
-			Logger.Warn("Maps directory does not exist. Creating...");
-			Directory.CreateDirectory(MapsDir);
-		}
-
-		if (!Directory.Exists(SchematicsDir))
-		{
-			Logger.Warn("Schematics directory does not exist. Creating...");
-			Directory.CreateDirectory(SchematicsDir);
-		}
-
-		CustomHandlersManager.RegisterEventsHandler(GenericEventsHandler);
-		CustomHandlersManager.RegisterEventsHandler(ToolGunEventsHandler);
-		CustomHandlersManager.RegisterEventsHandler(AcionOnEventHandlers);
-		CustomHandlersManager.RegisterEventsHandler(PickupEventsHandler);
-
-		_harmony = new Harmony($"michal78900.mapEditorReborn-{DateTime.Now.Ticks}");
-		_harmony.PatchAll();
-
-		if (Config!.EnableFileSystemWatcher)
-		{
-			_mapFileSystemWatcher = new FileSystemWatcher(MapsDir)
-			{
-				NotifyFilter = NotifyFilters.LastWrite,
-				Filter = "*.yml",
-				EnableRaisingEvents = true,
-			};
-
-			_mapFileSystemWatcher.Changed += OnMapFileChanged;
-
-			Logger.Debug("FileSystemWatcher enabled!");
-		}
+		Points.Init(this);
+	}
+	
+	public override void Disable()
+	{
+		Points.Kill();
 	}
 
-	private void OnMapFileChanged(object _, FileSystemEventArgs ev)
+	internal void OnMapFileChanged(object _, FileSystemEventArgs ev)
 	{
 		string mapName = ev.Name.Split('.')[0];
 		if (!MapUtils.LoadedMaps.ContainsKey(mapName))
@@ -110,28 +80,4 @@ public class ProjectMER : Plugin<Config>
 			}
 		});
 	}
-
-	public override void Disable()
-	{
-		Singleton = null!;
-		_harmony.UnpatchAll();
-
-		CustomHandlersManager.UnregisterEventsHandler(GenericEventsHandler);
-		CustomHandlersManager.UnregisterEventsHandler(ToolGunEventsHandler);
-		CustomHandlersManager.UnregisterEventsHandler(AcionOnEventHandlers);
-		CustomHandlersManager.UnregisterEventsHandler(PickupEventsHandler);
-
-		_harmony.UnpatchAll();
-		_mapFileSystemWatcher?.Dispose();
-	}
-
-	public override string Name => "ProjectMER";
-
-	public override string Description => "MER LabAPI";
-
-	public override string Author => "Michal78900";
-
-	public override Version Version => new Version(2025, 11, 2, 1);
-
-	public override Version RequiredApiVersion => new Version(1, 0, 0, 0);
 }

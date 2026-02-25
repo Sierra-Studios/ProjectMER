@@ -42,7 +42,7 @@ public class List : ICommand
 
 		List<MapStatus> mapStatuses = ListPool<MapStatus>.Shared.Rent();
 
-		foreach (string filePath in Directory.GetFiles(ProjectMER.MapsDir))
+		foreach (string filePath in Directory.GetFiles(ProjectMer.MapsDir))
 			mapStatuses.AddIfNotContains(new MapStatus(Path.GetFileNameWithoutExtension(filePath)));
 		foreach (string loaderMapName in MapUtils.LoadedMaps.Keys)
 			mapStatuses.AddIfNotContains(new MapStatus(loaderMapName));

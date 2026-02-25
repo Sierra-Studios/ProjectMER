@@ -25,7 +25,7 @@ public class PickupEventsHandler : CustomEventsHandler
 
 	public override void OnPlayerPickingUpItem(PlayerPickingUpItemEventArgs ev)
 	{
-		if (!ev.Pickup.Transform.TryGetComponentInParent(out MapEditorObject _))
+		if(MapEditorObject.Get(ev.Pickup.GameObject) == null)
 			return;
 
 		if (!PickupUsesLeft.ContainsKey(ev.Pickup.Serial))

@@ -32,7 +32,7 @@ public static class MapUtils
 			map = new MapSchematic(mapName).Merge(UntitledMap);
 		}
 
-		string path = Path.Combine(ProjectMER.MapsDir, $"{mapName}.yml");
+		string path = Path.Combine(ProjectMer.MapsDir, $"{mapName}.yml");
 		File.WriteAllText(path, YamlParser.Serializer.Serialize(map));
 		map.IsDirty = false;
 
@@ -79,7 +79,7 @@ public static class MapUtils
 	{
 		MapSchematic map;
 
-		string path = Path.Combine(ProjectMER.MapsDir, $"{mapName}.yml");
+		string path = Path.Combine(ProjectMer.MapsDir, $"{mapName}.yml");
 		if (!File.Exists(path))
 		{
 			string error = $"Failed to load map data: File {mapName}.yml does not exist!";
@@ -117,7 +117,7 @@ public static class MapUtils
 	public static SchematicObjectDataList GetSchematicDataByName(string schematicName)
 	{
 		SchematicObjectDataList data;
-		string schematicDirPath = Path.Combine(ProjectMER.SchematicsDir, schematicName);
+		string schematicDirPath = Path.Combine(ProjectMer.SchematicsDir, schematicName);
 		string schematicJsonPath = Path.Combine(schematicDirPath, $"{schematicName}.json");
 		string misplacedSchematicJsonPath = schematicDirPath + ".json";
 
@@ -165,7 +165,7 @@ public static class MapUtils
 		return data;
 	}
 
-	public static string[] GetAvailableSchematicNames() => Directory.GetFiles(ProjectMER.SchematicsDir, "*.json", SearchOption.AllDirectories).Select(Path.GetFileNameWithoutExtension).Where(x => !x.Contains('-')).ToArray();
+	public static string[] GetAvailableSchematicNames() => Directory.GetFiles(ProjectMer.SchematicsDir, "*.json", SearchOption.AllDirectories).Select(Path.GetFileNameWithoutExtension).Where(x => !x.Contains('-')).ToArray();
 
 	public static string GetColoredMapName(string mapName)
 	{

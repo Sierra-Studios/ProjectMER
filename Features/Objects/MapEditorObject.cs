@@ -18,6 +18,33 @@ public class MapEditorObject : MonoBehaviour
 
 	public MapSchematic Map => MapUtils.LoadedMaps[MapName];
 
+	private static Dictionary<GameObject, MapEditorObject> HasObject { get; } = [];
+	
+	public static MapEditorObject? Get(GameObject gameObject)
+	{
+		if (HasObject.TryGetValue(gameObject, out var mapEditorObject))
+		{
+			return mapEditorObject;
+		}
+		
+		return null;
+	}
+
+	internal static bool Remove(GameObject gameObject)
+	{
+		return HasObject.Remove(gameObject);
+	}
+	
+	internal static void Set(GameObject gameObject, MapEditorObject mapEditorObject)
+	{
+		HasObject[gameObject] = mapEditorObject;
+	}
+
+	private void Awake()
+	{
+		HasObject[gameObject] = this;
+	}
+
 	public MapEditorObject Init(SerializableObject serializableObject, string mapName, string id, Room room)
 	{
 		Base = serializableObject;
@@ -73,6 +100,7 @@ public class MapEditorObject : MonoBehaviour
 	/// </summary>
 	public void Destroy()
 	{
+		HasObject.Remove(gameObject);
 		IndicatorObject.TryDestroyIndicator(this);
 		Destroy(gameObject);
 	}

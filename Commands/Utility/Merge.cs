@@ -59,7 +59,7 @@ public class Merge : ICommand
 
 		ListPool<MapSchematic>.Shared.Return(maps);
 
-		string path = Path.Combine(ProjectMER.MapsDir, $"{mapName}.yml");
+		string path = Path.Combine(ProjectMer.MapsDir, $"{mapName}.yml");
 		File.WriteAllText(path, YamlParser.Serializer.Serialize(outputMap));
 
 		response = $"You've successfully merged {arguments.Count - 1} maps into one!";

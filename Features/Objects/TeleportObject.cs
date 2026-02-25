@@ -9,7 +9,7 @@ public class TeleportObject : MonoBehaviour
 {
 	private void Start()
 	{
-		_mapEditorObject = GetComponent<MapEditorObject>();
+		_mapEditorObject = MapEditorObject.Get(gameObject)!;
 		Base = (SerializableTeleport)_mapEditorObject.Base;
 	}
 

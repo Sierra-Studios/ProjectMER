@@ -61,7 +61,7 @@ public class SerializableDoor : SerializableObject
 				DoorType.Lcz => PrefabManager.DoorLcz,
 				DoorType.Hcz => PrefabManager.DoorHcz,
 				DoorType.Ez => PrefabManager.DoorEz,
-				DoorType.Bulkdoor => PrefabManager.DoorHeavyBulk,
+				DoorType.Bulk => PrefabManager.DoorHeavyBulk,
 				DoorType.Gate => PrefabManager.DoorGate,
 				_ => throw new InvalidOperationException(),
 			};

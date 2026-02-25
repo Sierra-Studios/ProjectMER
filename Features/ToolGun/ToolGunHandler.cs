@@ -146,5 +146,5 @@ public static class ToolGunHandler
 
 	private static readonly CachedLayerMask ToolGunMask = new("Default", "Door", "CCTV");
 
-	private static Config Config => ProjectMER.Singleton.Config!;
+	private static Config Config => ProjectMer.Singleton.Config!;
 }

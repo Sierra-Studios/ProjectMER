@@ -10,17 +10,6 @@ namespace ProjectMER.Events.Handlers.Internal;
 
 public class GenericEventsHandler : CustomEventsHandler
 {
-	public override void OnServerWaitingForPlayers()
-	{
-		PrefabManager.RegisterPrefabs();
-
-		MapUtils.LoadedMaps.Clear();
-		ToolGunItem.ItemDictionary.Clear();
-		ToolGunHandler.PlayerSelectedObjectDict.Clear();
-		PickupEventsHandler.ButtonPickups.Clear();
-		PickupEventsHandler.PickupUsesLeft.Clear();
-	}
-
 	public override void OnPlayerSpawning(PlayerSpawningEventArgs ev)
 	{
 		if (!ev.UseSpawnPoint)
@@ -42,7 +31,7 @@ public class GenericEventsHandler : CustomEventsHandler
 			return;
 
 		MapEditorObject randomElement = list[UnityEngine.Random.Range(0, list.Count)];
-
+		
 		ev.SpawnLocation = randomElement.transform.position;
 		Timing.CallDelayed(0.05f, () =>
 		{
@@ -59,7 +48,10 @@ public class GenericEventsHandler : CustomEventsHandler
 
 	public override void OnPlayerInteractingShootingTarget(PlayerInteractingShootingTargetEventArgs ev)
 	{
-		if (ev.ShootingTarget.GameObject.TryGetComponent(out MapEditorObject _))
+		//Created Get method to attempt not using slower methods, uses more memory, which is not in this case bad as this is small plugin.
+		if (MapEditorObject.Get(ev.ShootingTarget.GameObject) != null)
+		{
 			ev.IsAllowed = false;
+		}
 	}
 }
