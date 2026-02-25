@@ -6,12 +6,16 @@ using MEC;
 using ProjectMER.Configs;
 using ProjectMER.Events.Handlers.Internal;
 using ProjectMER.Features;
+using ProjectMER.Features.Extensions;
 using ProjectMER.Features.ToolGun;
 
 namespace ProjectMER;
 
 public class Points : CustomEventsHandler
 {
+    public static Points Instance;
+    public static bool Started { get; set; } = false;
+    
     public override void OnPlayerJoined(PlayerJoinedEventArgs ev)
     {
         if(!Started) Start();
@@ -30,11 +34,14 @@ public class Points : CustomEventsHandler
         base.OnServerRoundRestarted();
     }
 
-    public static bool Started { get; set; }
+    
 
     public static void Init(ProjectMer mer)
     {
+        Instance = new Points();
         ProjectMer.Singleton = mer;
+        
+        CustomHandlersManager.RegisterEventsHandler(Instance);
         
         mer.Harmony = new Harmony($"michal78900.mapEditorReborn-{DateTime.Now.Ticks}");
         mer.Harmony.PatchAll();
@@ -75,25 +82,6 @@ public class Points : CustomEventsHandler
             Logger.Debug("FileSystemWatcher enabled!");
         }
         
-        Start();
-    }
-    
-    public static void Start()
-    {
-        if (Started)
-        {
-            Logger.Error("For some reason called Started");
-            return;
-        }
-
-        PrefabManager.RegisterPrefabs();
-
-        MapUtils.LoadedMaps.Clear();
-        ToolGunItem.ItemDictionary.Clear();
-        ToolGunHandler.PlayerSelectedObjectDict.Clear();
-        PickupEventsHandler.ButtonPickups.Clear();
-        PickupEventsHandler.PickupUsesLeft.Clear();
-        
         if (ProjectMer.Singleton == null)
         {
             Logger.Error("[Attempted registration] ProjectMer.Singleton is null, consider reporting to developer");
@@ -112,6 +100,27 @@ public class Points : CustomEventsHandler
             CustomHandlersManager.RegisterEventsHandler(ProjectMer.Singleton.AcionOnEventHandlers);
             CustomHandlersManager.RegisterEventsHandler(ProjectMer.Singleton.PickupEventsHandler);
         }
+        
+        Start();
+    }
+    
+    public static void Start()
+    {
+        if (Started)
+        {
+            Logger.Error("For some reason called Started");
+            return;
+        }
+
+        Timing.CallDelayed(1f, PrefabManager.RegisterPrefabs);
+
+        MapUtils.LoadedMaps.Clear();
+        ToolGunItem.ItemDictionary.Clear();
+        ToolGunHandler.PlayerSelectedObjectDict.Clear();
+        PickupEventsHandler.ButtonPickups.Clear();
+        PickupEventsHandler.PickupUsesLeft.Clear();
+
+        Started = true;
     }
 
     public static void End()
@@ -122,9 +131,15 @@ public class Points : CustomEventsHandler
             return;
         }
         Started = false;
-        
+
+        RoomExtensions.RoomIndex = [];
         PrefabManager.UnregisterPrefabs();
-        
+    }
+
+    public static void Kill()
+    {
+        End();
+
         if (ProjectMer.Singleton == null)
         {
             Logger.Error("[Attempted unregistration] ProjectMer.Singleton is null, consider reporting to developer");
@@ -137,12 +152,10 @@ public class Points : CustomEventsHandler
             CustomHandlersManager.UnregisterEventsHandler(ProjectMer.Singleton.AcionOnEventHandlers);
             CustomHandlersManager.UnregisterEventsHandler(ProjectMer.Singleton.PickupEventsHandler);
         }
-    }
-
-    public static void Kill()
-    {
-        End();
-
+        
+        CustomHandlersManager.UnregisterEventsHandler(Instance);
+        Instance = null;
+        
         if (ProjectMer.Singleton == null)
         {
             Logger.Error("Wanted to kill, but it seems to not be started, proceeding anyway.");

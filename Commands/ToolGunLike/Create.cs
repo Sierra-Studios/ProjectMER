@@ -1,7 +1,7 @@
 using System.Text;
 using CommandSystem;
+using Exiled.API.Features;
 using LabApi.Features.Permissions;
-using LabApi.Features.Wrappers;
 using NorthwoodLib.Pools;
 using ProjectMER.Configs;
 using ProjectMER.Features;
@@ -9,6 +9,7 @@ using ProjectMER.Features.Enums;
 using ProjectMER.Features.ToolGun;
 using UnityEngine;
 using static ProjectMER.Features.Extensions.StructExtensions;
+using Player = LabApi.Features.Wrappers.Player;
 
 namespace ProjectMER.Commands.ToolGunLike;
 
@@ -84,7 +85,16 @@ public class Create : ICommand
 
 		if (Enum.TryParse(objectName, true, out ToolGunObjectType parsedEnum) && Enum.IsDefined(typeof(ToolGunObjectType), parsedEnum))
 		{
-			ToolGunHandler.CreateObject(position, parsedEnum);
+			Logger.Info($"Creating object with pos: {position} and parsed enum: {parsedEnum}");
+			try
+			{
+				ToolGunHandler.CreateObject(position, parsedEnum);
+			}
+			catch (Exception e)
+			{
+				Logger.Error(e);
+			}
+			
 			if (Config.AutoSelect && player is not null)
 				ToolGunHandler.SelectObject(player, MapUtils.UntitledMap.SpawnedObjects.Last());
 

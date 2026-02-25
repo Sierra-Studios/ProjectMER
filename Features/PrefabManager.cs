@@ -1,4 +1,6 @@
 using AdminToys;
+using Exiled.API.Enums;
+using Exiled.API.Features;
 using Interactables.Interobjects.DoorUtils;
 using InventorySystem.Items.Firearms.Attachments;
 using MapGeneration.Distributors;
@@ -273,5 +275,36 @@ public static class PrefabManager
 			}
 
 		}
+	}
+	
+	/// <summary>
+	/// Exiled way of spawning
+	/// </summary>
+	/// <param name="prefabType"></param>
+	/// <param name="position"></param>
+	/// <param name="rotation"></param>
+	/// <returns></returns>
+	public static GameObject Spawn(PrefabType prefabType, Vector3 position = default (Vector3), Quaternion? rotation = null, bool shouldSpawn = true)
+	{
+		GameObject gameObject1;
+		if (!PrefabHelper.TryGetPrefab(prefabType, out gameObject1))
+			return (GameObject) null;
+		rotation.GetValueOrDefault();
+		if (!rotation.HasValue)
+			rotation = new Quaternion?(Quaternion.identity);
+		GameObject gameObject2 = UnityEngine.Object.Instantiate<GameObject>(gameObject1, position, rotation.Value);
+		StructurePositionSync component;
+		if (gameObject2.TryGetComponent<StructurePositionSync>(out component))
+		{
+			component.Network_position = position;
+			component.Network_rotationY = (sbyte) Mathf.RoundToInt(rotation.Value.eulerAngles.y / 5.625f);
+		}
+
+		if (shouldSpawn)
+		{
+			NetworkServer.Spawn(gameObject2);
+		}
+		
+		return gameObject2;
 	}
 }

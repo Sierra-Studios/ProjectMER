@@ -24,7 +24,7 @@ public class SerializablePrimitive : SerializableObject
 	/// Gets or sets the <see cref="SerializablePrimitive"/>'s flags.
 	/// </summary>
 	public PrimitiveFlags PrimitiveFlags { get; set; } = (PrimitiveFlags)3;
-
+	
 	public override GameObject SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
 		PrimitiveObjectToy primitive = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.PrimitiveObject) : instance.GetComponent<PrimitiveObjectToy>();

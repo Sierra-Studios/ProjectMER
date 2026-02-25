@@ -53,6 +53,7 @@ public class ToolGunEventsHandler : CustomEventsHandler
 		}
 	}
 
+	//TODO: Debug this enough, so it actually displays hint.
 	private static void ToolGunAction()
 	{
 		foreach (Player player in Player.List)
@@ -78,7 +79,7 @@ public class ToolGunEventsHandler : CustomEventsHandler
 				return;
 			}
 			
-			display.Show(new BasicElement(300, hud), 0.25f);
+			display.Show(new BasicElement(0, hud), 0.25f);
 		}
 	}
 

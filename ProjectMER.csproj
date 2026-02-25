@@ -8,6 +8,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
   <ItemGroup>
     <Reference Include="UnityEngine" HintPath="$(LTSL_REFS)\UnityEngine.dll" />
     <Reference Include="UnityEngine.AnimationModule" HintPath="$(LTSL_REFS)\UnityEngine.AnimationModule.dll" />

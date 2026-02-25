@@ -10,13 +10,13 @@ public static class ObjectSpawner
 {
 	public static PrimitiveObjectToy SpawnPrimitive(SerializablePrimitive serializablePrimitive)
 	{
-		GameObject gameObject = serializablePrimitive.SpawnOrUpdateObject();
+		GameObject gameObject = serializablePrimitive.SafeSpawn();
 		return gameObject.GetComponent<PrimitiveObjectToy>();
 	}
 
 	public static SchematicObject SpawnSchematic(SerializableSchematic serializableSchematic)
 	{
-		GameObject? gameObject = serializableSchematic.SpawnOrUpdateObject();
+		GameObject? gameObject = serializableSchematic.SafeSpawn();
 		if (gameObject == null)
 			return null!;
 

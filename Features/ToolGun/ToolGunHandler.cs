@@ -28,13 +28,22 @@ public static class ToolGunHandler
 	{
 		Room room = RoomExtensions.GetRoomAtPosition(position);
 
+		Logger.Info($"Got room with name: {room.Name}");
+		
 		position = room.Name == RoomName.Outside ? position : room.Transform.InverseTransformPoint(position);
 		string roomId = room.GetRoomStringId();
 
 		MapSchematic map = MapUtils.UntitledMap;
 		string id = Guid.NewGuid().ToString("N").Substring(0, 8);
 
-		SerializableObject serializableObject = (SerializableObject)Activator.CreateInstance(ToolGunItem.TypesDictionary[objectType]);
+		var theType = ToolGunItem.TypesDictionary[objectType];
+		Logger.Info($"Selected type: {theType}");
+		SerializableObject serializableObject = (SerializableObject)Activator.CreateInstance(theType);
+		if (serializableObject == null)
+		{
+			Logger.Error("Serialized object is null");
+			return;
+		}
 		serializableObject.Room = roomId;
 		serializableObject.Index = room.GetRoomIndex();
 

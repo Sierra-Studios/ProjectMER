@@ -1,5 +1,6 @@
 namespace ProjectMER.Features.Enums;
 
+//TODO: Too much hardcoded
 public enum ToolGunObjectType
 {
 	Schematic = 0,

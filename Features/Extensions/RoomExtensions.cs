@@ -25,10 +25,14 @@ public static class RoomExtensions
 		return ListPool<Room>.Shared.Rent(Room.List.Where(x => x.Base != null && x.Zone == facilityZone && x.Shape == roomShape && x.Name == roomName));
 	}
 
+	public static Dictionary<Room, int> RoomIndex = [];
+	
 	public static int GetRoomIndex(this Room room)
 	{
+		if (RoomIndex.TryGetValue(room, out var roomIndex)) return roomIndex;
 		List<Room> list = ListPool<Room>.Shared.Rent(Room.List.Where(x => x.Base != null && x.Zone == room.Zone && x.Shape == room.Shape && x.Name == room.Name));
 		int index = list.IndexOf(room);
+		RoomIndex[room] = index;
 		ListPool<Room>.Shared.Return(list);
 		return index;
 	}

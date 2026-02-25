@@ -25,6 +25,16 @@ public abstract class SerializableObject
 
 	public virtual int Index { get; set; } = -1;
 
+	public GameObject? SafeSpawn(Room? room = null, GameObject? instance = null)
+	{
+		if (PrefabManager.PrimitiveObject == null)
+		{
+			PrefabManager.RegisterPrefabs();
+		}
+
+		return SpawnOrUpdateObject(room, instance);
+	}
+	
 	public virtual GameObject? SpawnOrUpdateObject(Room? room = null, GameObject? instance = null) => throw new NotSupportedException();
 
 	[YamlIgnore]

@@ -17,6 +17,7 @@ public class ToolGunItem
 {
 	public static Dictionary<ushort, ToolGunItem> ItemDictionary { get; private set; } = [];
 
+	//TODO: Again hardcoded asf
 	public static Dictionary<ToolGunObjectType, Type> TypesDictionary { get; private set; } = new()
 	{
 		{ ToolGunObjectType.Primitive, typeof(SerializablePrimitive) },
