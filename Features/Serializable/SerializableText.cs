@@ -1,6 +1,8 @@
 using AdminToys;
 using LabApi.Features.Wrappers;
 using Mirror;
+using ProjectMER.Features.Attributes;
+using ProjectMER.Features.Enums;
 using ProjectMER.Features.Extensions;
 using ProjectMER.Features.Interfaces;
 using UnityEngine;
@@ -15,14 +17,20 @@ public class SerializableText : SerializableObject, IIndicatorDefinition
 
 	public Vector3 DisplaySize { get; set; } = TextToy.DefaultDisplaySize;
 
+	[NoModifyProperty]
+	public override ToolGunObjectType ObjectType { get; set; } = ToolGunObjectType.Text;
+	public override void Setup(string key, MapSchematic map)
+	{
+		map.SpawnObject(key, this);
+	}
+
 	public override GameObject? SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
-		TextToy text = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.Text) : instance.GetComponent<TextToy>();
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+		var text = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.Text) : instance.GetComponent<TextToy>();
+		
 		_prevIndex = Index;
 
-		text.transform.SetPositionAndRotation(position, rotation);
+		SetPosAndRot(text);
 		text.transform.localScale = Scale;
 		text.NetworkMovementSmoothing = 60;
 
@@ -39,8 +47,8 @@ public class SerializableText : SerializableObject, IIndicatorDefinition
 	{
 		PrimitiveObjectToy cube;
 
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+		var position = room.GetAbsolutePosition(Position);
+		var rotation = room.GetAbsoluteRotation(Rotation);
 
 		if (instance == null)
 		{

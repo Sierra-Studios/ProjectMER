@@ -1,4 +1,3 @@
-using System.Text;
 using CommandSystem;
 using LabApi.Features.Permissions;
 using NorthwoodLib.Pools;
@@ -48,11 +47,11 @@ public class MapEditorParentCommand : ParentCommand
 
 	protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender, out string response)
 	{
-		StringBuilder sb = StringBuilderPool.Shared.Rent();
+		var sb = StringBuilderPool.Shared.Rent();
 		sb.AppendLine();
 		sb.Append("Please enter a valid subcommand:");
 
-		foreach (ICommand command in AllCommands)
+		foreach (var command in AllCommands)
 		{
 			if (sender.HasAnyPermission($"mpr.{command.Command}"))
 			{

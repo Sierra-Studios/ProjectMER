@@ -24,7 +24,7 @@ public static class CullingExtensions
 	/// <param name="schematic">The schematic to spawn.</param>
 	public static void SpawnSchematic(this Player player, SchematicObject schematic)
 	{
-		foreach (NetworkIdentity networkIdentity in schematic.NetworkIdentities)
+		foreach (var networkIdentity in schematic.NetworkIdentities)
 			player.SpawnNetworkIdentity(networkIdentity);
 	}
 
@@ -35,7 +35,7 @@ public static class CullingExtensions
 	/// <param name="schematic">The schematic to destroy.</param>
 	public static void DestroySchematic(this Player player, SchematicObject schematic)
 	{
-		foreach (NetworkIdentity networkIdentity in schematic.NetworkIdentities)
+		foreach (var networkIdentity in schematic.NetworkIdentities)
 			player.DestroyNetworkIdentity(networkIdentity);
 	}
 

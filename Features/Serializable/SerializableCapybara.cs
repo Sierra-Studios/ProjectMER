@@ -1,6 +1,7 @@
 using LabApi.Features.Wrappers;
 using Mirror;
-using ProjectMER.Features.Extensions;
+using ProjectMER.Features.Attributes;
+using ProjectMER.Features.Enums;
 using UnityEngine;
 using CapybaraToy = AdminToys.CapybaraToy;
 
@@ -8,14 +9,19 @@ namespace ProjectMER.Features.Serializable;
 
 public class SerializableCapybara : SerializableObject
 {
+	[NoModifyProperty]
+	public override ToolGunObjectType ObjectType { get; set; } = ToolGunObjectType.Capybara;
+	public override void Setup(string key, MapSchematic map)
+	{
+		map.SpawnObject(key, this);
+	}
+
 	public override GameObject SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
-		CapybaraToy capybara = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.Capybara) : instance.GetComponent<CapybaraToy>();
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+		var capybara = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.Capybara) : instance.GetComponent<CapybaraToy>();
 		_prevIndex = Index;
 
-		capybara.transform.SetPositionAndRotation(position, rotation);
+		SetPosAndRot(capybara);
 		capybara.transform.localScale = Scale;
 
 		capybara.NetworkCollisionsEnabled = true;

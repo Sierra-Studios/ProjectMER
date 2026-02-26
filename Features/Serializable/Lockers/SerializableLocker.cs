@@ -8,7 +8,6 @@ using UnityEngine;
 
 using Room = LabApi.Features.Wrappers.Room;
 using LabApiLocker = LabApi.Features.Wrappers.Locker;
-using LapApiLockerChamber = LabApi.Features.Wrappers.LockerChamber;
 
 namespace ProjectMER.Features.Serializable.Lockers;
 
@@ -20,11 +19,18 @@ public class SerializableLocker : SerializableObject
 
 	public List<SerializableLockerChamber> Chambers { get; set; } = [];
 
+	public override ToolGunObjectType ObjectType { get; set; } = ToolGunObjectType.Locker;
+	public override void Setup(string key, MapSchematic map)
+	{
+		_prevType = LockerType;
+		map.SpawnObject(key, this);
+	}
+
 	public override GameObject? SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
-		Locker locker = instance == null ? UnityEngine.Object.Instantiate(LockerPrefab) : instance.GetComponent<Locker>();
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+		var locker = instance == null ? UnityEngine.Object.Instantiate(LockerPrefab) : instance.GetComponent<Locker>();
+		var position = room.GetAbsolutePosition(Position);
+		var rotation = room.GetAbsoluteRotation(Rotation);
 		_prevIndex = Index;
 
 		locker.transform.SetPositionAndRotation(position, rotation);
@@ -36,19 +42,19 @@ public class SerializableLocker : SerializableObject
 			structurePositionSync.Network_rotationY = (sbyte)Mathf.RoundToInt(locker.transform.rotation.eulerAngles.y / 5.625f);
 		}
 
-		LabApiLocker labApiLocker = LabApiLocker.Get(locker);
+		var labApiLocker = LabApiLocker.Get(locker);
 		if (LockerType != _prevType)
 			SetDefaultSettings(labApiLocker);
 
 		labApiLocker.ClearLockerLoot();
-		foreach (SerializableLockerLoot loot in Loot)
+		foreach (var loot in Loot)
 		{
 			labApiLocker.AddLockerLoot(loot.TargetItem, loot.RemainingUses, loot.ProbabilityPoints, loot.MinPerChamber, loot.MaxPerChamber);
 		}
 
-		int i = 0;
+		var i = 0;
 		labApiLocker.ClearAllChambers();
-		foreach (LapApiLockerChamber chamber in labApiLocker.Chambers)
+		foreach (var chamber in labApiLocker.Chambers)
 		{
 			if (i > Chambers.Count - 1)
 				break;
@@ -64,14 +70,14 @@ public class SerializableLocker : SerializableObject
 
 		Timing.CallDelayed(0.25f, () =>
 		{
-			foreach (ItemPickupBase itemPickupBase in locker.GetComponentsInChildren<ItemPickupBase>())
+			foreach (var itemPickupBase in locker.GetComponentsInChildren<ItemPickupBase>())
 			{
 				if (itemPickupBase.TryGetComponent(out Rigidbody rigidbody))
 					rigidbody.isKinematic = false;
 			}
 
-			int i = 0;
-			foreach (LapApiLockerChamber chamber in labApiLocker.Chambers)
+			var i = 0;
+			foreach (var chamber in labApiLocker.Chambers)
 			{
 				chamber.IsOpen = Chambers[i].IsOpen;
 				i++;
@@ -86,12 +92,12 @@ public class SerializableLocker : SerializableObject
 		Loot.Clear();
 		Chambers.Clear();
 
-		foreach (LockerLoot loot in labApiLocker.Loot)
+		foreach (var loot in labApiLocker.Loot)
 		{
 			Loot.Add(new SerializableLockerLoot(loot.TargetItem, loot.RemainingUses, loot.MaxPerChamber, loot.ProbabilityPoints, loot.MinPerChamber));
 		}
 
-		foreach (LapApiLockerChamber chamber in labApiLocker.Chambers)
+		foreach (var chamber in labApiLocker.Chambers)
 		{
 			Chambers.Add(new SerializableLockerChamber(chamber.AcceptableItems, chamber.IsOpen, chamber.RequiredPermissions));
 		}
@@ -101,7 +107,7 @@ public class SerializableLocker : SerializableObject
 	{
 		get
 		{
-			Locker prefab = LockerType switch
+			var prefab = LockerType switch
 			{
 				LockerType.PedestalScp500 => PrefabManager.PedestalScp500,
 				LockerType.LargeGun => PrefabManager.LockerLargeGun,

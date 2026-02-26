@@ -16,7 +16,7 @@ public class PickupEventsHandler : CustomEventsHandler
 
 	public override void OnPlayerSearchingPickup(PlayerSearchingPickupEventArgs ev)
 	{
-		if (!ButtonPickups.TryGetValue(ev.Pickup.Serial, out SchematicObject schematic))
+		if (!ButtonPickups.TryGetValue(ev.Pickup.Serial, out var schematic))
 			return;
 
 		ev.IsAllowed = false;
@@ -40,7 +40,7 @@ public class PickupEventsHandler : CustomEventsHandler
 		ev.IsAllowed = false;
 		ev.Pickup.IsInUse = false;
 
-		Item item = ev.Player.AddItem(ev.Pickup.Type, ItemAddReason.PickedUp)!;
+		var item = ev.Player.AddItem(ev.Pickup.Type, ItemAddReason.PickedUp)!;
 		if (ev.Pickup is not FirearmPickup firearmPickup || item is not FirearmItem firearmItem)
 			return;
 

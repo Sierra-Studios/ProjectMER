@@ -16,7 +16,7 @@ public static class ToolGunHandler
 
 	public static void CreateObject(Player player, ToolGunObjectType objectType, string schematicName = "")
 	{
-		if (!Raycast(player, out RaycastHit hit))
+		if (!Raycast(player, out var hit))
 			return;
 
 		CreateObject(hit.point, objectType, schematicName);
@@ -26,19 +26,19 @@ public static class ToolGunHandler
 
 	public static void CreateObject(Vector3 position, ToolGunObjectType objectType, string schematicName = "")
 	{
-		Room room = RoomExtensions.GetRoomAtPosition(position);
+		var room = RoomExtensions.GetRoomAtPosition(position);
 
 		Logger.Info($"Got room with name: {room.Name}");
 		
 		position = room.Name == RoomName.Outside ? position : room.Transform.InverseTransformPoint(position);
-		string roomId = room.GetRoomStringId();
+		var roomId = room.GetRoomStringId();
 
-		MapSchematic map = MapUtils.UntitledMap;
-		string id = Guid.NewGuid().ToString("N").Substring(0, 8);
+		var map = MapUtils.UntitledMap;
+		var id = Guid.NewGuid().ToString("N").Substring(0, 8);
 
 		var theType = ToolGunItem.TypesDictionary[objectType];
 		Logger.Info($"Selected type: {theType}");
-		SerializableObject serializableObject = (SerializableObject)Activator.CreateInstance(theType);
+		var serializableObject = (SerializableObject)Activator.CreateInstance(theType);
 		if (serializableObject == null)
 		{
 			Logger.Error("Serialized object is null");
@@ -76,7 +76,7 @@ public static class ToolGunHandler
 		if (map.TryAddElement(id, serializableObject))
 			map.SpawnObject(id, serializableObject);
 
-		foreach (MapEditorObject mapEditorObject in map.SpawnedObjects)
+		foreach (var mapEditorObject in map.SpawnedObjects)
 		{
 			if (mapEditorObject.Id != id)
 				continue;
@@ -89,7 +89,7 @@ public static class ToolGunHandler
 	{
 		IndicatorObject.TryDestroyIndicator(mapEditorObject);
 
-		MapSchematic map = MapUtils.LoadedMaps[mapEditorObject.MapName];
+		var map = MapUtils.LoadedMaps[mapEditorObject.MapName];
 		if (map.TryRemoveElement(mapEditorObject.Id))
 			map.DestroyObject(mapEditorObject.Id);
 	}
@@ -97,10 +97,11 @@ public static class ToolGunHandler
 	public static bool TryGetMapObject(Player player, out MapEditorObject mapEditorObject)
 	{
 		mapEditorObject = null!;
-		if (!Raycast(player, out RaycastHit hit))
+		if (!Raycast(player, out var hit))
 			return false;
 
-		if (!hit.transform.TryGetComponentInParent(out mapEditorObject))
+		mapEditorObject = MapEditorObject.Get(hit.transform.gameObject);
+		if (!mapEditorObject)
 			return false;
 
 		if (mapEditorObject is IndicatorObject indicatorObject)
@@ -133,9 +134,9 @@ public static class ToolGunHandler
 
 	public static bool TryGetObjectById(string id, out MapEditorObject mapEditorObject)
 	{
-		foreach (MapSchematic map in MapUtils.LoadedMaps.Values)
+		foreach (var map in MapUtils.LoadedMaps.Values)
 		{
-			foreach (MapEditorObject meo in map.SpawnedObjects)
+			foreach (var meo in map.SpawnedObjects)
 			{
 				if (meo.Id == id)
 				{

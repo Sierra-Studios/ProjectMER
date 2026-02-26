@@ -1,6 +1,8 @@
 using AdminToys;
 using LabApi.Features.Wrappers;
 using Mirror;
+using ProjectMER.Features.Attributes;
+using ProjectMER.Features.Enums;
 using ProjectMER.Features.Extensions;
 using ProjectMER.Features.Interfaces;
 using UnityEngine;
@@ -15,14 +17,19 @@ public class SerializableInteractable : SerializableObject, IIndicatorDefinition
 	public float InteractionDuration { get; set; } = 0f;
 	public bool IsLocked { get; set; } = false;
 
+	[NoModifyProperty]
+	public override ToolGunObjectType ObjectType { get; set; } = ToolGunObjectType.Interactable;
+	public override void Setup(string key, MapSchematic map)
+	{
+		map.SpawnObject(key, this);
+	}
+
 	public override GameObject? SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
-		InvisibleInteractableToy interactable = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.Interactable) : instance.GetComponent<InvisibleInteractableToy>();
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+		var interactable = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.Interactable) : instance.GetComponent<InvisibleInteractableToy>();
 		_prevIndex = Index;
-
-		interactable.transform.SetPositionAndRotation(position, rotation);
+		
+		SetPosAndRot(interactable);
 		interactable.transform.localScale = Scale;
 		interactable.NetworkMovementSmoothing = 60;
 
@@ -40,8 +47,8 @@ public class SerializableInteractable : SerializableObject, IIndicatorDefinition
 	{
 		PrimitiveObjectToy cube;
 
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+		var position = room.GetAbsolutePosition(Position);
+		var rotation = room.GetAbsoluteRotation(Rotation);
 
 		if (instance == null)
 		{
@@ -66,7 +73,7 @@ public class SerializableInteractable : SerializableObject, IIndicatorDefinition
 	{
 		get
 		{
-			PrimitiveType primitiveType = ColliderShape switch
+			var primitiveType = ColliderShape switch
 			{
 				ColliderShape.Box => PrimitiveType.Cube,
 				ColliderShape.Sphere => PrimitiveType.Sphere,

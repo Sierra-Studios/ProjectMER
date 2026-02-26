@@ -3,6 +3,7 @@ using LabApi.Features.Wrappers;
 using Mirror;
 using ProjectMER.Events.Arguments;
 using ProjectMER.Events.Handlers;
+using ProjectMER.Features.Enums;
 using ProjectMER.Features.Extensions;
 using ProjectMER.Features.Objects;
 using UnityEngine;
@@ -14,14 +15,20 @@ public class SerializableSchematic : SerializableObject
 {
 	public string SchematicName { get; set; } = "None";
 
+	public override ToolGunObjectType ObjectType { get; set; } = ToolGunObjectType.Schematic;
+	public override void Setup(string key, MapSchematic map)
+	{
+		map.SpawnObject(key, this);
+	}
+
 	public override GameObject? SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
-		PrimitiveObjectToy schematic = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.PrimitiveObject) : instance.GetComponent<PrimitiveObjectToy>();
+		var schematic = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.PrimitiveObject) : instance.GetComponent<PrimitiveObjectToy>();
 		schematic.NetworkPrimitiveFlags = PrimitiveFlags.None;
 		schematic.NetworkMovementSmoothing = 60;
 
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+		var position = room.GetAbsolutePosition(Position);
+		var rotation = room.GetAbsoluteRotation(Rotation);
 		_prevIndex = Index;
 
 		schematic.name = $"CustomSchematic-{SchematicName}";
@@ -30,7 +37,7 @@ public class SerializableSchematic : SerializableObject
 
 		if (instance == null)
 		{
-			_ = MapUtils.TryGetSchematicDataByName(SchematicName, out SchematicObjectDataList? data) ? data : null;
+			_ = MapUtils.TryGetSchematicDataByName(SchematicName, out var data) ? data : null;
 
 			if (data == null)
 			{

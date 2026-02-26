@@ -1,6 +1,8 @@
 using AdminToys;
 using LabApi.Features.Wrappers;
 using PlayerRoles;
+using ProjectMER.Features.Attributes;
+using ProjectMER.Features.Enums;
 using ProjectMER.Features.Extensions;
 using ProjectMER.Features.Interfaces;
 using Respawning.Objectives;
@@ -14,19 +16,24 @@ public class SerializablePlayerSpawnpoint : SerializableObject, IIndicatorDefini
 {
 	public List<RoleTypeId> Roles { get; set; } = [];
 
+	[NoModifyProperty]
+	public override ToolGunObjectType ObjectType { get; set; } = ToolGunObjectType.PlayerSpawnpoint;
+	public override void Setup(string key, MapSchematic map)
+	{
+		map.SpawnObject(key, this);
+	}
+
 	[YamlIgnore]
 	public override Vector3 Scale { get; set; }
 
 	public override GameObject SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
-		GameObject spawnpoint = instance ?? new GameObject("PlayerSpawnpoint");
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+		var spawnPoint = instance ?? new GameObject("PlayerSpawnpoint");
 		_prevIndex = Index;
 
-		spawnpoint.transform.SetPositionAndRotation(position, rotation);
+		SetPosAndRot(spawnPoint);
 
-		return spawnpoint.gameObject;
+		return spawnPoint.gameObject;
 	}
 
 	public GameObject SpawnOrUpdateIndicator(Room room, GameObject? instance = null)
@@ -37,8 +44,8 @@ public class SerializablePlayerSpawnpoint : SerializableObject, IIndicatorDefini
 		PrimitiveObjectToy arrowX;
 		PrimitiveObjectToy arrow;
 
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+		var position = room.GetAbsolutePosition(Position);
+		var rotation = room.GetAbsoluteRotation(Rotation);
 
 		if (instance == null)
 		{
@@ -83,14 +90,14 @@ public class SerializablePlayerSpawnpoint : SerializableObject, IIndicatorDefini
 		arrowX.transform.localPosition = Vector3.zero;
 		arrowX.transform.localEulerAngles = new Vector3(-rotation.eulerAngles.x, 0f, 0f);
 
-		foreach (PrimitiveObjectToy primitive in root.GetComponentsInChildren<PrimitiveObjectToy>())
+		foreach (var primitive in root.GetComponentsInChildren<PrimitiveObjectToy>())
 		{
 			if (Roles.Count > 0)
 			{
 				Color colorSum = new(0f, 0f, 0f, 1f);
-				foreach (RoleTypeId roleType in Roles)
+				foreach (var roleType in Roles)
 				{
-					Color roleColor = roleType.GetRoleColor();
+					var roleColor = roleType.GetRoleColor();
 					colorSum.r += roleColor.r;
 					colorSum.g += roleColor.g;
 					colorSum.b += roleColor.b;

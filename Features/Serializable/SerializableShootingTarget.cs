@@ -1,8 +1,8 @@
 using AdminToys;
 using LabApi.Features.Wrappers;
 using Mirror;
+using ProjectMER.Features.Attributes;
 using ProjectMER.Features.Enums;
-using ProjectMER.Features.Extensions;
 using UnityEngine;
 
 namespace ProjectMER.Features.Serializable;
@@ -10,14 +10,19 @@ namespace ProjectMER.Features.Serializable;
 public class SerializableShootingTarget : SerializableObject
 {
 	public TargetType TargetType { get; set; } = TargetType.ClassD;
-	
+
+	[NoModifyProperty]
+	public override ToolGunObjectType ObjectType { get; set; } = ToolGunObjectType.ShootingTarget;
+	public override void Setup(string key, MapSchematic map)
+	{
+		map.SpawnObject(key, this);
+	}
+
 	public override GameObject SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
-		ShootingTarget shootingTarget = instance == null ? UnityEngine.Object.Instantiate(TargetPrefab) : instance.GetComponent<ShootingTarget>();
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
-
-		shootingTarget.transform.SetPositionAndRotation(position, rotation);
+		var shootingTarget = instance == null ? UnityEngine.Object.Instantiate(TargetPrefab) : instance.GetComponent<ShootingTarget>();
+		
+		SetPosAndRot(shootingTarget);
 		shootingTarget.transform.localScale = Scale;
 		
 		_prevType = TargetType;
@@ -32,7 +37,7 @@ public class SerializableShootingTarget : SerializableObject
 	{
 		get
 		{
-			ShootingTarget prefab = TargetType switch
+			var prefab = TargetType switch
 			{
 				TargetType.Binary => PrefabManager.ShootingTargetBinary,
 				TargetType.ClassD => PrefabManager.ShootingTargetDBoy,

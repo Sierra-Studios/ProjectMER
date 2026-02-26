@@ -1,9 +1,7 @@
 ﻿using CommandSystem;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
-using ProjectMER.Features.Objects;
 using ProjectMER.Features.ToolGun;
-using UnityEngine;
 using static ProjectMER.Features.Extensions.StructExtensions;
 
 namespace ProjectMER.Commands.Modifying.Scale.SubCommands;
@@ -28,20 +26,20 @@ public class Add : ICommand
 			return false;
 		}
 
-		Player? player = Player.Get(sender);
+		var player = Player.Get(sender);
 		if (player is null)
 		{
 			response = "This command can't be run from the server console.";
 			return false;
 		}
 
-		if (!ToolGunHandler.TryGetSelectedMapObject(player, out MapEditorObject mapEditorObject))
+		if (!ToolGunHandler.TryGetSelectedMapObject(player, out var mapEditorObject))
 		{
 			response = "You need to select an object first!";
 			return false;
 		}
 
-		if (arguments.Count >= 3 && TryGetVector(arguments.At(0), arguments.At(1), arguments.At(2), out Vector3 newScale))
+		if (arguments.Count >= 3 && TryGetVector(arguments.At(0), arguments.At(1), arguments.At(2), out var newScale))
 		{
 			mapEditorObject.Base.Scale += newScale;
 			mapEditorObject.UpdateObjectAndCopies();

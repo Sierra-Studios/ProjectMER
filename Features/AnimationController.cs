@@ -17,7 +17,7 @@ public class AnimationController
 		AttachedSchematic = schematic;
 
 		List<Animator> list = [];
-		foreach (GameObject gameObject in schematic.AttachedBlocks)
+		foreach (var gameObject in schematic.AttachedBlocks)
 		{
 			if (gameObject.TryGetComponent(out Animator animator))
 				list.Add(animator);
@@ -77,7 +77,7 @@ public class AnimationController
     /// <param name="schematic">The schematic to check.</param>
     /// <returns>The corresponding <see cref="AnimationController"/>, or <see langword="null"/> if not found.</returns>
     public static AnimationController Get(SchematicObject schematic) =>
-		Dictionary.TryGetValue(schematic, out AnimationController animationController) ? animationController : new AnimationController(schematic);
+		Dictionary.TryGetValue(schematic, out var animationController) ? animationController : new AnimationController(schematic);
 
     /// <summary>
     /// A <see cref="Dictionary{TKey, TValue}"/> of <see cref="SchematicObject"/> and <see cref="AnimationController"/>

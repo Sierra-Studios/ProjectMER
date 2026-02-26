@@ -3,7 +3,6 @@ using MEC;
 using ProjectMER.Features.Serializable;
 using ProjectMER.Features.ToolGun;
 using ProjectMER.Features.Utility;
-using UnityEngine;
 
 namespace ProjectMER.Features.Objects;
 
@@ -36,9 +35,9 @@ public class MapEditorObject : CachedMonobehaviour<MapEditorObject>
 		if (Base.RequiresReloading)
 		{
 			Base._prevIndex = Base.Index;
-			Player? player = ToolGunHandler.PlayerSelectedObjectDict.FirstOrDefault(x => x.Value.Id == Id).Key;
+			var player = ToolGunHandler.PlayerSelectedObjectDict.FirstOrDefault(x => x.Value.Id == Id).Key;
 
-			if (MapUtils.LoadedMaps.TryGetValue(MapName, out MapSchematic map))
+			if (MapUtils.LoadedMaps.TryGetValue(MapName, out var map))
 			{
 				map.DestroyObject(Id);
 			}
@@ -54,7 +53,7 @@ public class MapEditorObject : CachedMonobehaviour<MapEditorObject>
 			return;
 		}
 
-		foreach (MapEditorObject copy in Map.SpawnedObjects.ToList())
+		foreach (var copy in Map.SpawnedObjects.ToList())
 		{
 			if (copy.Id != Id)
 				continue;

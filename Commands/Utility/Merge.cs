@@ -33,11 +33,11 @@ public class Merge : ICommand
 			return false;
 		}
 
-		List<MapSchematic> maps = ListPool<MapSchematic>.Shared.Rent();
+		var maps = ListPool<MapSchematic>.Shared.Rent();
 
-		for (int i = 1; i < arguments.Count; i++)
+		for (var i = 1; i < arguments.Count; i++)
 		{
-			MapSchematic map = MapUtils.GetMapData(arguments.At(i));
+			var map = MapUtils.GetMapData(arguments.At(i));
 
 			if (map is null)
 			{
@@ -50,16 +50,16 @@ public class Merge : ICommand
 			maps.Add(map);
 		}
 
-		string mapName = arguments.At(0);
+		var mapName = arguments.At(0);
 		MapSchematic outputMap = new(mapName);
-		foreach (MapSchematic map in maps)
+		foreach (var map in maps)
 		{
 			outputMap.Merge(map);
 		}
 
 		ListPool<MapSchematic>.Shared.Return(maps);
 
-		string path = Path.Combine(ProjectMer.MapsDir, $"{mapName}.yml");
+		var path = Path.Combine(ProjectMer.MapsDir, $"{mapName}.yml");
 		File.WriteAllText(path, YamlParser.Serializer.Serialize(outputMap));
 
 		response = $"You've successfully merged {arguments.Count - 1} maps into one!";

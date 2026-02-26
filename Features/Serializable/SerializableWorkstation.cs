@@ -2,7 +2,8 @@ using InventorySystem.Items.Firearms.Attachments;
 using LabApi.Features.Wrappers;
 using MapGeneration.Distributors;
 using Mirror;
-using ProjectMER.Features.Extensions;
+using ProjectMER.Features.Attributes;
+using ProjectMER.Features.Enums;
 using UnityEngine;
 
 namespace ProjectMER.Features.Serializable;
@@ -14,14 +15,19 @@ public class SerializableWorkstation : SerializableObject
 	/// </summary>
 	public bool IsInteractable { get; set; } = true;
 
+	[NoModifyProperty]
+	public override ToolGunObjectType ObjectType { get; set; } = ToolGunObjectType.Workstation;
+	public override void Setup(string key, MapSchematic map)
+	{
+		map.SpawnObject(key, this);
+	}
+
 	public override GameObject SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
-		WorkstationController workstation = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.Workstation) : instance.GetComponent<WorkstationController>();
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+		var workstation = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.Workstation) : instance.GetComponent<WorkstationController>();
 		_prevIndex = Index;
 
-		workstation.transform.SetPositionAndRotation(position, rotation);
+		SetPosAndRot(workstation);
 		workstation.transform.localScale = Scale;
 
 		workstation.NetworkStatus = (byte)(IsInteractable ? 0 : 4);

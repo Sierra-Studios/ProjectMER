@@ -13,8 +13,8 @@ public static class SSDropdownSettingExtensions
 			return false;
 		}
 
-		int max = original.Options.Length - 1;
-		int num = Mathf.Clamp(dropdownSetting.SyncSelectionIndexRaw, 0, max);
+		var max = original.Options.Length - 1;
+		var num = Mathf.Clamp(dropdownSetting.SyncSelectionIndexRaw, 0, max);
 		return original.Options.TryGet(num, out text);
 	}
 }

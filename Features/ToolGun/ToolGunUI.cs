@@ -1,13 +1,11 @@
 using System.Reflection;
-using System.Text;
 using LabApi.Features.Wrappers;
 using NorthwoodLib.Pools;
+using ProjectMER.Features.Attributes;
 using ProjectMER.Features.Enums;
 using ProjectMER.Features.Extensions;
 using ProjectMER.Features.Objects;
-using UnityEngine;
 using UserSettings.ServerSpecific;
-using YamlDotNet.Serialization;
 
 namespace ProjectMER.Features.ToolGun;
 
@@ -15,65 +13,51 @@ public static class ToolGunUI
 {
 	public static string GetHintHUD(Player player)
 	{
-		StringBuilder sb = StringBuilderPool.Shared.Rent();
-
-		sb.Append("<font=\"LiberationSans SDF\">");
-
-		int offset = 0;
+		var sb = StringBuilderPool.Shared.Rent();
+		
 		object instance = null!;
 		List<PropertyInfo> properties = [];
-		if (ToolGunHandler.TryGetSelectedMapObject(player, out MapEditorObject mapEditorObject) && mapEditorObject != null)
+		if (ToolGunHandler.TryGetSelectedMapObject(player, out var mapEditorObject) && mapEditorObject != null)
 		{
 			instance = mapEditorObject.GetType().GetField("Base").GetValue(mapEditorObject);
-			properties = instance.GetType().GetProperties().ToList();
-			offset = properties.Count - properties.Count(x => Attribute.IsDefined(x, typeof(YamlIgnoreAttribute))) + 2 + 2;
+			properties = instance.GetType().GetProperties().Where(x => !NoModifyProperty.HasAttribute(x)).ToList();
 		}
 
-		for (int i = 0; i < 36 - offset; i++)
-		{
-			sb.Append("<size=50%> </size>");
-			sb.AppendLine();
-		}
-
-		if (mapEditorObject != null)
+		if (mapEditorObject)
 		{
 			sb.Append($"<size=50%>MapName: {MapUtils.GetColoredMapName(mapEditorObject.MapName)}</size>");
-			sb.AppendLine();
+			sb.Append("\n");
 			sb.Append($"<size=50%>ID: {MapUtils.GetColoredString(mapEditorObject.Id)}</size>");
-			sb.AppendLine();
+			sb.Append("\n");
 		}
 
-		foreach (string property in properties.GetColoredProperties(instance))
+		foreach (var property in properties.GetColoredProperties(instance))
 		{
 			sb.Append($"<size=50%>");
 			sb.Append(property);
 			sb.Append("</size>");
-			sb.AppendLine();
+			sb.Append("\n");
 		}
 
-		if (offset > 0)
-			sb.AppendLine();
-
-		if (!player.CurrentItem.IsToolGun(out ToolGunItem toolGun))
+		if (!player.CurrentItem.IsToolGun(out var toolGun))
 			return StringBuilderPool.Shared.ToStringReturn(sb);
 
 		sb.Append($"<size=50%>");
 		sb.Append(GetToolGunModeString(player, toolGun));
 		sb.Append("</size>");
 
-		sb.AppendLine();
+		sb.Append("\n");
 
 
 		sb.Append($"<size=50%>");
 		sb.Append($"{player.Position:F3}");
 		sb.Append("</size>");
 
-		sb.AppendLine();
+		sb.Append("\n");
 
 		sb.Append($"<size=50%>");
 		sb.Append(GetRoomString(player));
 		sb.Append("</size>");
-		sb.Append("</font>");
 
 		return StringBuilderPool.Shared.ToStringReturn(sb);
 	}
@@ -85,7 +69,7 @@ public static class ToolGunUI
 			string output;
 			if (toolGun.SelectedObjectToSpawn == ToolGunObjectType.Schematic)
 			{
-				if (ServerSpecificSettingsSync.TryGetSettingOfUser(player.ReferenceHub, 0, out SSDropdownSetting dropdownSetting) && dropdownSetting.TryGetSyncSelectionText(out string schematicName))
+				if (ServerSpecificSettingsSync.TryGetSettingOfUser(player.ReferenceHub, 0, out SSDropdownSetting dropdownSetting) && dropdownSetting.TryGetSyncSelectionText(out var schematicName))
 					output = schematicName.ToUpper();
 				else
 					output = "Please select schematic in options";
@@ -98,15 +82,15 @@ public static class ToolGunUI
 			return $"<color=green>CREATE</color>\n<color=yellow>{output}</color>";
 		}
 
-		string name = " ";
-		if (ToolGunHandler.Raycast(player, out RaycastHit hit))
+		var name = " ";
+		if (ToolGunHandler.Raycast(player, out var hit))
 		{
-			if (hit.transform.TryGetComponentInParent(out MapEditorObject mapEditorObject))
+			if (MapEditorObject.TryGet(hit.transform.gameObject, false, out var mapEditorObject))
 			{
 				if (mapEditorObject is IndicatorObject indicatorObject)
 					mapEditorObject = IndicatorObject.Dictionary[indicatorObject];
-
-				if (mapEditorObject.gameObject.TryGetComponent(out SchematicObject schematicObject))
+				
+				if (SchematicObject.TryGet(mapEditorObject.transform.root.gameObject, false, out var schematicObject))
 				{
 					name = schematicObject.Name.ToUpper();
 				}
@@ -128,8 +112,8 @@ public static class ToolGunUI
 
 	private static string GetRoomString(Player player)
 	{
-		Room room = RoomExtensions.GetRoomAtPosition(player.Camera.transform.position);
-		List<Room> list = ListPool<Room>.Shared.Rent(Room.List.Where(x => x.Base != null && x.Zone == room.Zone && x.Shape == room.Shape && x.Name == room.Name));
+		var room = RoomExtensions.GetRoomAtPosition(player.Camera.transform.position);
+		var list = ListPool<Room>.Shared.Rent(Room.List.Where(x => x.Base != null && x.Zone == room.Zone && x.Shape == room.Shape && x.Name == room.Name));
 
 		string roomString;
 		if (list.Count == 1)

@@ -1,6 +1,8 @@
 using AdminToys;
 using LabApi.Features.Wrappers;
 using Mirror;
+using ProjectMER.Features.Attributes;
+using ProjectMER.Features.Enums;
 using ProjectMER.Features.Extensions;
 using ProjectMER.Features.Interfaces;
 using UnityEngine;
@@ -13,14 +15,20 @@ public class SerializableWaypoint : SerializableObject, IIndicatorDefinition
 {
 	public const float ScaleMultiplier = 1 / 256f;
 
+	[NoModifyProperty]
+	public override ToolGunObjectType ObjectType { get; set; } = ToolGunObjectType.Waypoint;
+	public override void Setup(string key, MapSchematic map)
+	{
+		map.SpawnObject(key, this);
+	}
+
 	public override GameObject? SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
-		WaypointToy waypoint = instance == null ? GameObject.Instantiate(PrefabManager.Waypoint) : instance.GetComponent<WaypointToy>();
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+		var waypoint = instance == null ? GameObject.Instantiate(PrefabManager.Waypoint) : instance.GetComponent<WaypointToy>();
+		
 		_prevIndex = Index;
 
-		waypoint.transform.SetPositionAndRotation(position, rotation);
+		SetPosAndRot(waypoint);
 		waypoint.transform.localScale = Scale * ScaleMultiplier;
 		waypoint.NetworkMovementSmoothing = 60;
 		waypoint.NetworkVisualizeBounds = true;
@@ -33,9 +41,9 @@ public class SerializableWaypoint : SerializableObject, IIndicatorDefinition
 
 	public GameObject SpawnOrUpdateIndicator(Room room, GameObject? instance = null)
 	{
-		PrimitiveObjectToy primitive = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.PrimitiveObject) : instance.GetComponent<PrimitiveObjectToy>();
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+		var primitive = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.PrimitiveObject) : instance.GetComponent<PrimitiveObjectToy>();
+		var position = room.GetAbsolutePosition(Position);
+		var rotation = room.GetAbsoluteRotation(Rotation);
 
 		primitive.NetworkPrimitiveFlags = PrimitiveFlags.None;
 		primitive.NetworkPrimitiveType = PrimitiveType.Cube;

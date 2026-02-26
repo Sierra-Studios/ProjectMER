@@ -1,6 +1,7 @@
-using System;
 using AdminToys;
 using LabApi.Features.Wrappers;
+using ProjectMER.Features.Attributes;
+using ProjectMER.Features.Enums;
 using ProjectMER.Features.Extensions;
 using ProjectMER.Features.Interfaces;
 using ProjectMER.Features.Objects;
@@ -15,11 +16,18 @@ public class SerializableTeleport : SerializableObject, IIndicatorDefinition
 
 	public float Cooldown { get; set; } = 5f;
 
+	[NoModifyProperty]
+	public override ToolGunObjectType ObjectType { get; set; } = ToolGunObjectType.Teleport;
+	public override void Setup(string key, MapSchematic map)
+	{
+		map.SpawnObject(key, this);
+	}
+
 	public override GameObject? SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
-		GameObject gameObject = instance ?? new GameObject("Teleport");
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+		var gameObject = instance ?? new GameObject("Teleport");
+		var position = room.GetAbsolutePosition(Position);
+		var rotation = room.GetAbsoluteRotation(Rotation);
 		_prevIndex = Index;
 		gameObject.transform.SetLocalPositionAndRotation(position, rotation);
 
@@ -43,8 +51,8 @@ public class SerializableTeleport : SerializableObject, IIndicatorDefinition
 		PrimitiveObjectToy arrowX;
 		PrimitiveObjectToy arrow;
 
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+		var position = room.GetAbsolutePosition(Position);
+		var rotation = room.GetAbsoluteRotation(Rotation);
 
 		if (instance == null)
 		{
@@ -95,7 +103,7 @@ public class SerializableTeleport : SerializableObject, IIndicatorDefinition
 		arrowX.transform.localPosition = Vector3.zero;
 		arrowX.transform.localEulerAngles = new Vector3(-rotation.eulerAngles.x, 0f, 0f);
 
-		foreach (PrimitiveObjectToy primitive in root.GetComponentsInChildren<PrimitiveObjectToy>())
+		foreach (var primitive in root.GetComponentsInChildren<PrimitiveObjectToy>())
 		{
 			if (Targets.Count > 0)
 			{

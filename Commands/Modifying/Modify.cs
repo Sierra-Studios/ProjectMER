@@ -1,14 +1,12 @@
 ﻿using System.Collections;
 using System.ComponentModel;
-using System.Reflection;
-using System.Text;
 using CommandSystem;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
 using NorthwoodLib.Pools;
 using ProjectMER.Features;
+using ProjectMER.Features.Attributes;
 using ProjectMER.Features.Extensions;
-using ProjectMER.Features.Objects;
 using ProjectMER.Features.Serializable;
 using ProjectMER.Features.ToolGun;
 using Utils.NonAllocLINQ;
@@ -38,25 +36,25 @@ public class Modify : ICommand
 			return false;
 		}
 
-		Player? player = Player.Get(sender);
+		var player = Player.Get(sender);
 		if (player is null)
 		{
 			response = "This command can't be run from the server console.";
 			return false;
 		}
 
-		if (!ToolGunHandler.TryGetSelectedMapObject(player, out MapEditorObject mapEditorObject))
+		if (!ToolGunHandler.TryGetSelectedMapObject(player, out var mapEditorObject))
 		{
 			response = "You haven't selected any object!";
 			return false;
 		}
 
-		object instance = mapEditorObject.GetType().GetField("Base").GetValue(mapEditorObject);
-		List<PropertyInfo> properties = instance.GetType().GetModifiableProperties().ToList();
+		var instance = mapEditorObject.GetType().GetField("Base").GetValue(mapEditorObject);
+		var properties = instance.GetType().GetModifiableProperties().ToList();
 
 		if (arguments.Count == 0)
 		{
-			StringBuilder sb = StringBuilderPool.Shared.Rent();
+			var sb = StringBuilderPool.Shared.Rent();
 			sb.AppendLine();
 			sb.Append("Object properties:");
 			sb.AppendLine();
@@ -65,7 +63,7 @@ public class Modify : ICommand
 			sb.AppendLine();
 			sb.Append($"ID: {MapUtils.GetColoredString(mapEditorObject.Id)}");
 			sb.AppendLine();
-			foreach (string property in properties.GetColoredProperties(instance))
+			foreach (var property in properties.GetColoredProperties(instance))
 			{
 				sb.Append(property);
 				sb.AppendLine();
@@ -75,16 +73,22 @@ public class Modify : ICommand
 			return true;
 		}
 
-		string propertyName = arguments.At(0).ToUpperInvariant();
+		var propertyName = arguments.At(0).ToUpperInvariant();
 		if (propertyName.Contains("MAP"))
 			return HandleMap(out response);
 		else if (propertyName == "ID")
 			return HandleId(out response);
 
-		PropertyInfo? foundProperty = properties.FirstOrDefault(x => x.Name.ToUpperInvariant().Contains(propertyName));
+		var foundProperty = properties.FirstOrDefault(x => x.Name.ToUpperInvariant().Contains(propertyName));
 		if (foundProperty == null)
 		{
 			response = $"There isn't any object property that contains \"{arguments.At(0)}\" in it's name!";
+			return false;
+		}
+
+		if (NoModifyProperty.HasAttribute(foundProperty))
+		{
+			response = "This property is not allowed to be changed.";
 			return false;
 		}
 
@@ -110,7 +114,7 @@ public class Modify : ICommand
 				return false;
 			}
 
-			string newMapName = arguments.At(1);
+			var newMapName = arguments.At(1);
 			if (mapEditorObject.MapName == newMapName)
 			{
 				response = $"This object is already a part of this map!";
@@ -123,8 +127,8 @@ public class Modify : ICommand
 				return false;
 			}
 
-			MapSchematic oldMap = mapEditorObject.Map;
-			if (!MapUtils.LoadedMaps.TryGetValue(newMapName, out MapSchematic newMap)) // Map is already loaded
+			var oldMap = mapEditorObject.Map;
+			if (!MapUtils.LoadedMaps.TryGetValue(newMapName, out var newMap)) // Map is already loaded
 				if (!MapUtils.TryGetMapData(newMapName, out newMap)) // Map isn't loaded but map file exists
 				{ // Map isn't loaded and map file doesn't exist
 
@@ -150,7 +154,7 @@ public class Modify : ICommand
 				return false;
 			}
 
-			string newId = arguments.At(1);
+			var newId = arguments.At(1);
 
 			if (mapEditorObject.Map.SpawnedObjects.Any(x => x.Id == newId))
 			{
@@ -167,19 +171,19 @@ public class Modify : ICommand
 
 		bool HandleCollection(out string response)
 		{
-			object listInstance = foundProperty.GetValue(instance);
-			Type listType = foundProperty.PropertyType.GetInterfaces().First(x => x.IsGenericType).GetGenericArguments()[0];
+			var listInstance = foundProperty.GetValue(instance);
+			var listType = foundProperty.PropertyType.GetInterfaces().First(x => x.IsGenericType).GetGenericArguments()[0];
 
 			switch (arguments.At(1).ToLower())
 			{
 				case "a":
 				case "add":
 					{
-						for (int i = 2; i < arguments.Count; i++)
+						for (var i = 2; i < arguments.Count; i++)
 						{
 							try
 							{
-								object value = TypeDescriptor.GetConverter(listType).ConvertFromInvariantString(arguments.At(i));
+								var value = TypeDescriptor.GetConverter(listType).ConvertFromInvariantString(arguments.At(i));
 								foundProperty.PropertyType.GetMethod("Add").Invoke(listInstance, [value]);
 							}
 							catch (Exception)
@@ -194,11 +198,11 @@ public class Modify : ICommand
 				case "rm":
 				case "remove":
 					{
-						for (int i = 2; i < arguments.Count; i++)
+						for (var i = 2; i < arguments.Count; i++)
 						{
 							try
 							{
-								object value = TypeDescriptor.GetConverter(listType).ConvertFromInvariantString(arguments.At(i));
+								var value = TypeDescriptor.GetConverter(listType).ConvertFromInvariantString(arguments.At(i));
 								foundProperty.PropertyType.GetMethod("Remove").Invoke(listInstance, [value]);
 							}
 							catch (Exception)
@@ -229,12 +233,12 @@ public class Modify : ICommand
 
 			try
 			{
-				object value = TypeDescriptor.GetConverter(foundProperty.PropertyType).ConvertFromInvariantString(arguments.At(1));
+				var value = TypeDescriptor.GetConverter(foundProperty.PropertyType).ConvertFromInvariantString(arguments.At(1));
 				foundProperty.SetValue(instance, value);
 			}
 			catch (Exception)
 			{
-				StringBuilder sb = StringBuilderPool.Shared.Rent();
+				var sb = StringBuilderPool.Shared.Rent();
 				if (arguments.Count > 1)
 				{
 					sb.Append($"\"{arguments.At(1)}\" is not a valid argument! The value should be a {foundProperty.PropertyType} type.");
@@ -245,7 +249,7 @@ public class Modify : ICommand
 					sb.AppendLine();
 					sb.Append($"{foundProperty.PropertyType.ToString().Split('.').Last()} values (use either text name or number, sum numbers for multiple flags)");
 					sb.AppendLine();
-					foreach (object value in Enum.GetValues(foundProperty.PropertyType))
+					foreach (var value in Enum.GetValues(foundProperty.PropertyType))
 					{
 						sb.Append($"- {value} = {Enum.Format(foundProperty.PropertyType, value, "d")}");
 						sb.AppendLine();
@@ -270,8 +274,8 @@ public class Modify : ICommand
 				return false;
 			}
 
-			StringBuilder spacedStringBuilder = StringBuilderPool.Shared.Rent(arguments.At(1));
-			for (int i = 1; i < arguments.Count - 1; i++)
+			var spacedStringBuilder = StringBuilderPool.Shared.Rent(arguments.At(1));
+			for (var i = 1; i < arguments.Count - 1; i++)
 			{
 				spacedStringBuilder.Append($" {arguments.At(1 + i)}");
 			}

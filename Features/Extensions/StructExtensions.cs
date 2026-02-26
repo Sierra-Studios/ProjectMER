@@ -13,19 +13,19 @@ public static class StructExtensions
 	public static Color GetColorFromString(this string colorText)
 	{
 		Color color = new(-1f, -1f, -1f);
-		string[] charTab = colorText.Split(':');
+		var charTab = colorText.Split(':');
 		if (charTab.Length >= 4)
 		{
-			if (charTab[0].TryParseToFloat(out float red))
+			if (charTab[0].TryParseToFloat(out var red))
 				color.r = red / 255f;
 
-			if (charTab[1].TryParseToFloat(out float green))
+			if (charTab[1].TryParseToFloat(out var green))
 				color.g = green / 255f;
 
-			if (charTab[2].TryParseToFloat(out float blue))
+			if (charTab[2].TryParseToFloat(out var blue))
 				color.b = blue / 255f;
 
-			if (charTab[3].TryParseToFloat(out float alpha))
+			if (charTab[3].TryParseToFloat(out var alpha))
 				color.a = alpha;
 
 			return color != new Color(-1f, -1f, -1f) ? color : Color.magenta * 3f;
@@ -41,11 +41,11 @@ public static class StructExtensions
 	public static Vector3 ToVector3(this string s)
 	{
 		s = s.Trim('(', ')').Replace(" ", "");
-		string[] split = s.Split(',');
+		var split = s.Split(',');
 
-		float x = float.Parse(split[0], CultureInfo.InvariantCulture);
-		float y = float.Parse(split[1], CultureInfo.InvariantCulture);
-		float z = float.Parse(split[2], CultureInfo.InvariantCulture);
+		var x = float.Parse(split[0], CultureInfo.InvariantCulture);
+		var y = float.Parse(split[1], CultureInfo.InvariantCulture);
+		var z = float.Parse(split[2], CultureInfo.InvariantCulture);
 
 		return new Vector3(x, y, z);
 	}
@@ -64,7 +64,7 @@ public static class StructExtensions
 	{
 		vector = Vector3.zero;
 
-		if (!x.TryParseToFloat(out float xValue) || !y.TryParseToFloat(out float yValue) || !z.TryParseToFloat(out float zValue))
+		if (!x.TryParseToFloat(out var xValue) || !y.TryParseToFloat(out var yValue) || !z.TryParseToFloat(out var zValue))
 			return false;
 
 		vector = new Vector3(xValue, yValue, zValue);

@@ -1,13 +1,13 @@
 global using Logger = LabApi.Features.Console.Logger;
 
 using HarmonyLib;
-using LabApi.Events.CustomHandlers;
-using LabApi.Loader.Features.Paths;
 using LabApi.Loader.Features.Plugins;
 using MEC;
 using ProjectMER.Configs;
 using ProjectMER.Events.Handlers.Internal;
 using ProjectMER.Features;
+
+//TODO: Figure out selecting schematics.
 
 namespace ProjectMER;
 
@@ -64,7 +64,7 @@ public class ProjectMer : Plugin<Config>
 
 	internal void OnMapFileChanged(object _, FileSystemEventArgs ev)
 	{
-		string mapName = ev.Name.Split('.')[0];
+		var mapName = ev.Name.Split('.')[0];
 		if (!MapUtils.LoadedMaps.ContainsKey(mapName))
 			return;
 
@@ -72,7 +72,7 @@ public class ProjectMer : Plugin<Config>
 		{
 			try
 			{
-				MapUtils.LoadMap(mapName);
+				MapUtils.LoadOrReload(mapName);
 			}
 			catch (Exception e)
 			{

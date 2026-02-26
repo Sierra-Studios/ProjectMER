@@ -1,15 +1,11 @@
-﻿using AdminToys;
-using Exiled.API.Enums;
-using Exiled.API.Features;
+﻿using Exiled.API.Enums;
 using Mirror;
+using ProjectMER.Features.Enums;
 using ProjectMER.Features.Extensions;
 using ProjectMER.Features.Interfaces;
 using ProjectMER.Features.Serializable;
 using ProjectMER.Features.Utility;
 using UnityEngine;
-using UnityEngine.Serialization;
-using Object = UnityEngine.Object;
-using PrimitiveObjectToy = AdminToys.PrimitiveObjectToy;
 using Room = LabApi.Features.Wrappers.Room;
 
 namespace ProjectMER.Features.Objects;
@@ -84,7 +80,6 @@ public class PrefabObject : CachedMonobehaviour<PrefabObject>
         if (!instantiated)
         {
             return;
-            
         }
         
         instantiated.transform.localScale = transform.localScale;
@@ -101,14 +96,20 @@ public class PrefabObject : CachedMonobehaviour<PrefabObject>
 public class SerializablePrefabObject: SerializableObject, IIndicatorDefinition
 {
     public PrefabType Type { get; set; } = PrefabType.PrimitiveObjectToy;
-    
+
+    public override ToolGunObjectType ObjectType { get; set; } = ToolGunObjectType.Prefab;
+    public override void Setup(string key, MapSchematic map)
+    {
+        map.SpawnObject(key, this);
+    }
+
     public override GameObject? SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
     {
         var prefabObject = PrefabObject.Get(instance);
         //PrimitiveObjectToy primitive = instance == null ? Object.Instantiate(PrefabManager.PrimitiveObject) : instance.GetComponent<PrimitiveObjectToy>();
-        GameObject primitive = instance == null ? new GameObject("prefab object") : instance;
-        Vector3 position = room.GetAbsolutePosition(Position);
-        Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+        var primitive = instance == null ? new GameObject("prefab object") : instance;
+        var position = room.GetAbsolutePosition(Position);
+        var rotation = room.GetAbsoluteRotation(Rotation);
         _prevIndex = Index;
 
         primitive.transform.SetPositionAndRotation(position, rotation);
@@ -131,7 +132,7 @@ public class SerializablePrefabObject: SerializableObject, IIndicatorDefinition
     {
         Indicator.Scale = new Vector3(0.2f, 0.2f, 0.2f);
         Indicator.Color = "#292f56";
-        instance = Indicator.SpawnOrUpdateObject(room, instance);
+        instance = Indicator.SafeSpawn(room, instance);
         return instance;
     }
 }

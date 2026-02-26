@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Reflection;
-using System.Text;
 using NorthwoodLib.Pools;
+using ProjectMER.Features.Attributes;
 using UnityEngine;
 using YamlDotNet.Serialization;
 
@@ -11,7 +11,7 @@ public static class ReflectionExtensions
 {
 	public static IEnumerable<PropertyInfo> GetModifiableProperties(this Type type)
 	{
-		foreach (PropertyInfo property in type.GetProperties())
+		foreach (var property in type.GetProperties())
 		{
 			if (!property.CanWrite)
 				continue;
@@ -28,8 +28,10 @@ public static class ReflectionExtensions
 
 	public static IEnumerable<string> GetColoredProperties(this List<PropertyInfo> properties, object instance)
 	{
-		foreach (PropertyInfo property in properties)
+		foreach (var property in properties)
 		{
+			if (NoModifyProperty.HasAttribute(property)) continue;
+			
 			if (!property.CanWrite)
 				continue;
 
@@ -43,12 +45,12 @@ public static class ReflectionExtensions
 			}
 			else if (property.Name.Contains("Color"))
 			{
-				string colorString = property.GetValue(instance).ToString();
+				var colorString = property.GetValue(instance).ToString();
 				yield return $"{property.Name}: <color={colorString.GetColorFromString().ToHex()}><b>{colorString}</b></color>";
 			}
 			else if (property.Name == "Text")
 			{
-				StringBuilder sb = StringBuilderPool.Shared.Rent(property.GetValue(instance).ToString());
+				var sb = StringBuilderPool.Shared.Rent(property.GetValue(instance).ToString());
 				if (sb.Length > 32)
 				{
 					sb.Remove(32, sb.Length - 32);
@@ -58,12 +60,12 @@ public static class ReflectionExtensions
 			}
 			else if (typeof(ICollection).IsAssignableFrom(property.PropertyType))
 			{
-				StringBuilder sb = StringBuilderPool.Shared.Rent();
-				ICollection collection = (ICollection)property.GetValue(instance);
-				Type collectionType = collection.GetType().GetGenericArguments()[0];
+				var sb = StringBuilderPool.Shared.Rent();
+				var collection = (ICollection)property.GetValue(instance);
+				var collectionType = collection.GetType().GetGenericArguments()[0];
 				if (collectionType.IsEnum)
 				{
-					foreach (object? item in collection)
+					foreach (var item in collection)
 						sb.Append($"{item} ");
 
 					if (sb.Length > 0)
@@ -74,7 +76,7 @@ public static class ReflectionExtensions
 				}
 				else if (collectionType == typeof(string))
 				{
-					foreach (object? item in collection)
+					foreach (var item in collection)
 						sb.Append($"{MapUtils.GetColoredString(item.ToString())} ");
 
 					if (sb.Length > 0)

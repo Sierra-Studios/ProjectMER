@@ -1,14 +1,9 @@
-using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Firearms.Attachments;
 using InventorySystem.Items.Firearms.Modules;
 using LabApi.Features.Wrappers;
 using ProjectMER.Features.Enums;
 using ProjectMER.Features.Extensions;
-using ProjectMER.Features.Objects;
-using ProjectMER.Features.Serializable;
-using ProjectMER.Features.Serializable.Lockers;
-using ProjectMER.Features.Serializable.Schematics;
 using UserSettings.ServerSpecific;
 
 namespace ProjectMER.Features.ToolGun;
@@ -18,25 +13,7 @@ public class ToolGunItem
 	public static Dictionary<ushort, ToolGunItem> ItemDictionary { get; private set; } = [];
 
 	//TODO: Again hardcoded asf
-	public static Dictionary<ToolGunObjectType, Type> TypesDictionary { get; private set; } = new()
-	{
-		{ ToolGunObjectType.Primitive, typeof(SerializablePrimitive) },
-		{ ToolGunObjectType.Light, typeof(SerializableLight) },
-		{ ToolGunObjectType.Door, typeof(SerializableDoor) },
-		{ ToolGunObjectType.Workstation, typeof(SerializableWorkstation) },
-		{ ToolGunObjectType.ItemSpawnpoint, typeof(SerializableItemSpawnpoint)},
-		{ ToolGunObjectType.PlayerSpawnpoint, typeof(SerializablePlayerSpawnpoint) },
-		{ ToolGunObjectType.Capybara, typeof(SerializableCapybara) },
-		{ ToolGunObjectType.Text, typeof(SerializableText)},
-		{ ToolGunObjectType.Schematic, typeof(SerializableSchematic) },
-		{ ToolGunObjectType.Scp079Camera, typeof(SerializableScp079Camera) },
-		{ ToolGunObjectType.ShootingTarget, typeof(SerializableShootingTarget) },
-		{ ToolGunObjectType.Locker, typeof(SerializableLocker) },
-		{ ToolGunObjectType.Teleport, typeof(SerializableTeleport) },
-		{ ToolGunObjectType.Interactable, typeof(SerializableInteractable) },
-		{ ToolGunObjectType.Waypoint, typeof(SerializableWaypoint) },
-		{ ToolGunObjectType.PrefabObject, typeof(SerializablePrefabObject) },
-	};
+	public static Dictionary<ToolGunObjectType, Type> TypesDictionary { get; private set; } = new();
 
 	private ToolGunObjectType _selectedObjectToSpawn;
 	public ToolGunObjectType SelectedObjectToSpawn
@@ -61,11 +38,11 @@ public class ToolGunItem
 
 	public static bool TryAdd(Player player)
 	{
-		Item? item = player.AddItem(ItemType.GunCOM18);
+		var item = player.AddItem(ItemType.GunCOM18);
 		if (item == null)
 			return false;
 
-		Firearm toolgun = (Firearm)item.Base;
+		var toolgun = (Firearm)item.Base;
 		toolgun.ApplyAttachmentsCode(454, false);
 		if (!toolgun.TryGetModules(out MagazineModule magazineModule, out AutomaticActionModule automaticActionModule))
 		{
@@ -90,14 +67,14 @@ public class ToolGunItem
 			new SSDropdownSetting(0, "Schematic Name", MapUtils.GetAvailableSchematicNames(), isServerOnly: true)
 		];
 
-		ServerSpecificSettingsSync.SendToPlayersConditionally(x => x.inventory.UserInventory.Items.Values.Any(x => x.IsToolGun(out ToolGunItem _)));
+		ServerSpecificSettingsSync.SendToPlayersConditionally(x => x.inventory.UserInventory.Items.Values.Any(x => x.IsToolGun(out var _)));
 
 		return true;
 	}
 
 	public static bool Remove(Player player)
 	{
-		foreach (ItemBase itemBase in player.Inventory.UserInventory.Items.Values)
+		foreach (var itemBase in player.Inventory.UserInventory.Items.Values)
 		{
 			if (ItemDictionary.ContainsKey(itemBase.ItemSerial))
 			{
@@ -119,13 +96,13 @@ public class ToolGunItem
 		if (CreateMode)
 		{
 			ServerSpecificSettingsSync.TryGetSettingOfUser(player.ReferenceHub, 0, out SSDropdownSetting dropdownSetting);
-			dropdownSetting.TryGetSyncSelectionText(out string schematicName);
+			dropdownSetting.TryGetSyncSelectionText(out var schematicName);
 
 			ToolGunHandler.CreateObject(player, SelectedObjectToSpawn, schematicName);
 			return;
 		}
 
-		if (ToolGunHandler.TryGetMapObject(player, out MapEditorObject mapEditorObject) && DeleteMode)
+		if (ToolGunHandler.TryGetMapObject(player, out var mapEditorObject) && DeleteMode)
 		{
 			ToolGunHandler.DeleteObject(mapEditorObject);
 			return;

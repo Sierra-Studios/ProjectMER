@@ -2,7 +2,8 @@
 using LabApi.Features.Wrappers;
 using MapGeneration;
 using Mirror;
-using ProjectMER.Features.Extensions;
+using ProjectMER.Features.Attributes;
+using ProjectMER.Features.Enums;
 using UnityEngine;
 using CameraType = ProjectMER.Features.Enums.CameraType;
 
@@ -13,11 +14,16 @@ public class SerializableScp079Camera : SerializableObject
 	public CameraType CameraType { get; set; } = CameraType.Lcz;
 	public string Label { get; set; } = "CustomCamera";
 
+	[NoModifyProperty]
+	public override ToolGunObjectType ObjectType { get; set; } = ToolGunObjectType.Scp079Camera;
+	public override void Setup(string key, MapSchematic map)
+	{
+		map.SpawnObject(key, this);
+	}
+
 	public override GameObject SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
 		Scp079CameraToy cameraVariant;
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
 		_prevIndex = Index;
 
 		if (instance == null)
@@ -29,7 +35,7 @@ public class SerializableScp079Camera : SerializableObject
 			cameraVariant = instance.GetComponent<Scp079CameraToy>();
 		}
 
-		cameraVariant.transform.SetPositionAndRotation(position, rotation);
+		SetPosAndRot(cameraVariant);
 		cameraVariant.transform.localScale = Scale;
 		cameraVariant.NetworkScale = cameraVariant.transform.localScale;
 
@@ -51,7 +57,7 @@ public class SerializableScp079Camera : SerializableObject
 	{
 		get
 		{
-			Scp079CameraToy prefab = CameraType switch
+			var prefab = CameraType switch
 			{
 				CameraType.Lcz => PrefabManager.CameraLcz,
 				CameraType.Hcz => PrefabManager.CameraHcz,

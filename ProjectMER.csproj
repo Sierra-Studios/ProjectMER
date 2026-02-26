@@ -19,12 +19,13 @@
     <Reference Include="UnityEngine.AssetBundleModule" HintPath="$(LTSL_REFS)\UnityEngine.AssetBundleModule.dll" />
     <Reference Include="UnityEngine.PhysicsModule" HintPath="$(LTSL_REFS)\UnityEngine.PhysicsModule.dll" />
     <Reference Include="Unity.TextMeshPro" HintPath="$(LTSL_REFS)\Unity.TextMeshPro.dll" />
-    <Reference Include="Mirror" HintPath="$(LTSL_REFS)\Mirror.dll" />
-    <Reference Include="Assembly-CSharp" HintPath="$(LTSL_REFS)\Assembly-CSharp-Publicized.dll" />
+    <Reference Include="Mirror" HintPath="$(LTSL_REFS)\Mirror-Publicized.dll" />
     <Reference Include="Assembly-CSharp-firstpass" HintPath="$(LTSL_REFS)\Assembly-CSharp-firstpass.dll" />
 	  <Reference Include="CommandSystem.Core" HintPath="$(LTSL_REFS)\CommandSystem.Core.dll" />
     <Reference Include="YamlDotNet" HintPath="$(LTSL_REFS)\YamlDotNet.dll" />
     <Reference Include="NorthwoodLib" HintPath="$(LTSL_REFS)\NorthwoodLib.dll" />
+    <Reference Include="MsCorlib" HintPath="$(LTSL_REFS)\mscorlib.dll" />
+    
   </ItemGroup>
 
   <ItemGroup>

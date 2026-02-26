@@ -4,6 +4,8 @@ using InventorySystem.Items.Pickups;
 using LabApi.Features.Wrappers;
 using MEC;
 using ProjectMER.Events.Handlers.Internal;
+using ProjectMER.Features.Attributes;
+using ProjectMER.Features.Enums;
 using ProjectMER.Features.Extensions;
 using ProjectMER.Features.Interfaces;
 using UnityEngine;
@@ -21,27 +23,34 @@ public class SerializableItemSpawnpoint : SerializableObject, IIndicatorDefiniti
 	public bool UseGravity { get; set; } = true;
 	public bool CanBePickedUp { get; set; } = true;
 
+	[NoModifyProperty]
+	public override ToolGunObjectType ObjectType { get; set; } = ToolGunObjectType.ItemSpawnpoint;
+	public override void Setup(string key, MapSchematic map)
+	{
+		map.SpawnObject(key, this);
+	}
+
 	public override GameObject? SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
-		GameObject itemSpawnPoint = instance ?? new GameObject("ItemSpawnpoint");
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+		var itemSpawnPoint = instance ?? new GameObject("ItemSpawnpoint");
+		var position = room.GetAbsolutePosition(Position);
+		var rotation = room.GetAbsoluteRotation(Rotation);
 		_prevIndex = Index;
 
 		itemSpawnPoint.transform.SetPositionAndRotation(position, rotation);
 
 		if (instance != null)
 		{
-			foreach (ItemPickupBase pickup in instance.GetComponentsInChildren<ItemPickupBase>())
+			foreach (var pickup in instance.GetComponentsInChildren<ItemPickupBase>())
 			{
 				PickupEventsHandler.PickupUsesLeft.Remove(pickup.Info.Serial);
 				pickup.DestroySelf();
 			}
 		}
 
-		for (int i = 0; i < NumberOfItems; i++)
+		for (var i = 0; i < NumberOfItems; i++)
 		{
-			Pickup pickup = Pickup.Create(ItemType, position, rotation, Scale)!;
+			var pickup = Pickup.Create(ItemType, position, rotation, Scale)!;
 
 			pickup.Transform.parent = itemSpawnPoint.transform;
 			if (Weight != -1)
@@ -58,7 +67,7 @@ public class SerializableItemSpawnpoint : SerializableObject, IIndicatorDefiniti
 				Timing.CallDelayed(0.01f, () =>
 				{
 					firearmPickup.Base.OnDistributed();
-					firearmPickup.AttachmentCode = uint.TryParse(AttachmentsCode, out uint attachmentsCode) ? attachmentsCode : AttachmentsUtils.GetRandomAttachmentsCode(firearmPickup.Type);
+					firearmPickup.AttachmentCode = uint.TryParse(AttachmentsCode, out var attachmentsCode) ? attachmentsCode : AttachmentsUtils.GetRandomAttachmentsCode(firearmPickup.Type);
 					if (firearmPickup.Base.Template.TryGetModule(out MagazineModule magazineModule))
 						magazineModule.ServerResyncData();
 				});
@@ -70,9 +79,7 @@ public class SerializableItemSpawnpoint : SerializableObject, IIndicatorDefiniti
 	public GameObject SpawnOrUpdateIndicator(Room room, GameObject? instance = null)
 	{
 		PrimitiveObjectToy cube;
-
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+		
 
 		if (instance == null)
 		{
@@ -87,7 +94,7 @@ public class SerializableItemSpawnpoint : SerializableObject, IIndicatorDefiniti
 			cube = instance.GetComponent<PrimitiveObjectToy>();
 		}
 
-		cube.transform.SetPositionAndRotation(position, rotation);
+		SetPosAndRot(cube);
 
 		return cube.gameObject;
 	}

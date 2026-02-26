@@ -8,19 +8,19 @@ namespace ProjectMER.Features.Extensions;
 
 public static class RoomExtensions
 {
-	public static Room GetRoomAtPosition(Vector3 position) => Room.TryGetRoomAtPosition(position, out Room? room) ? room : Room.List.First(x => x.Base != null && x.Name == RoomName.Outside);
+	public static Room GetRoomAtPosition(Vector3 position) => Room.TryGetRoomAtPosition(position, out var room) ? room : Room.List.First(x => x.Base != null && x.Name == RoomName.Outside);
 
 	public static string GetRoomStringId(this Room room) => $"{room.Zone}_{room.Shape}_{room.Name}";
 
 	public static List<Room> GetRooms(this SerializableObject serializableObject)
 	{
-		string[] split = serializableObject.Room.Split('_');
+		var split = serializableObject.Room.Split('_');
 		if (split.Length != 3)
 			return ListPool<Room>.Shared.Rent(Room.List.Where(x => x.Base != null && x.Name == RoomName.Outside));
 
-		FacilityZone facilityZone = (FacilityZone)Enum.Parse(typeof(FacilityZone), split[0], true);
-		RoomShape roomShape = (RoomShape)Enum.Parse(typeof(RoomShape), split[1], true);
-		RoomName roomName = (RoomName)Enum.Parse(typeof(RoomName), split[2], true);
+		var facilityZone = (FacilityZone)Enum.Parse(typeof(FacilityZone), split[0], true);
+		var roomShape = (RoomShape)Enum.Parse(typeof(RoomShape), split[1], true);
+		var roomName = (RoomName)Enum.Parse(typeof(RoomName), split[2], true);
 
 		return ListPool<Room>.Shared.Rent(Room.List.Where(x => x.Base != null && x.Zone == facilityZone && x.Shape == roomShape && x.Name == roomName));
 	}
@@ -30,8 +30,8 @@ public static class RoomExtensions
 	public static int GetRoomIndex(this Room room)
 	{
 		if (RoomIndex.TryGetValue(room, out var roomIndex)) return roomIndex;
-		List<Room> list = ListPool<Room>.Shared.Rent(Room.List.Where(x => x.Base != null && x.Zone == room.Zone && x.Shape == room.Shape && x.Name == room.Name));
-		int index = list.IndexOf(room);
+		var list = ListPool<Room>.Shared.Rent(Room.List.Where(x => x.Base != null && x.Zone == room.Zone && x.Shape == room.Shape && x.Name == room.Name));
+		var index = list.IndexOf(room);
 		RoomIndex[room] = index;
 		ListPool<Room>.Shared.Return(list);
 		return index;

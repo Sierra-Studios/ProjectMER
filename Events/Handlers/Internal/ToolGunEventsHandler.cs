@@ -1,9 +1,7 @@
-using Exiled.API.Features;
 using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.CustomHandlers;
 using MEC;
 using ProjectMER.Features.Extensions;
-using ProjectMER.Features.Objects;
 using ProjectMER.Features.ToolGun;
 using RueI.API;
 using RueI.API.Elements;
@@ -56,9 +54,9 @@ public class ToolGunEventsHandler : CustomEventsHandler
 	//TODO: Debug this enough, so it actually displays hint.
 	private static void ToolGunAction()
 	{
-		foreach (Player player in Player.List)
+		foreach (var player in Player.List)
 		{
-			if (!player.CurrentItem.IsToolGun(out ToolGunItem _) && !ToolGunHandler.TryGetSelectedMapObject(player, out MapEditorObject _))
+			if (!player.CurrentItem.IsToolGun(out var _) && !ToolGunHandler.TryGetSelectedMapObject(player, out var _))
 				continue;
 
 			string hud;
@@ -79,13 +77,13 @@ public class ToolGunEventsHandler : CustomEventsHandler
 				return;
 			}
 			
-			display.Show(new BasicElement(0, hud), 0.25f);
+			display.Show(new Tag("Project MER Hud"), new BasicElement(300, hud + "</b>"), 0.25f);
 		}
 	}
 
 	public override void OnPlayerDryFiringWeapon(PlayerDryFiringWeaponEventArgs ev)
 	{
-		if (!ev.Weapon.IsToolGun(out ToolGunItem toolGun))
+		if (!ev.Weapon.IsToolGun(out var toolGun))
 			return;
 
 		ev.IsAllowed = false;
@@ -94,7 +92,7 @@ public class ToolGunEventsHandler : CustomEventsHandler
 
 	public override void OnPlayerReloadingWeapon(PlayerReloadingWeaponEventArgs ev)
 	{
-		if (!ev.Weapon.IsToolGun(out ToolGunItem toolGun))
+		if (!ev.Weapon.IsToolGun(out var toolGun))
 			return;
 
 		ev.IsAllowed = false;
@@ -103,7 +101,7 @@ public class ToolGunEventsHandler : CustomEventsHandler
 
 	public override void OnPlayerDroppingItem(PlayerDroppingItemEventArgs ev)
 	{
-		if (!ev.Item.IsToolGun(out ToolGunItem toolGun))
+		if (!ev.Item.IsToolGun(out var toolGun))
 			return;
 
 		ev.IsAllowed = false;

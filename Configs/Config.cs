@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using MEROptimizer;
 
 namespace ProjectMER.Configs;
 
@@ -52,4 +53,6 @@ public class Config
 	public List<string> OnWarheadStarted { get; set; } = [];
 	public List<string> OnWarheadStopped { get; set; } = [];
 	public List<string> OnWarheadDetonated { get; set; } = [];
+
+	public OptimizerConfig OptimizerConfig { get; set; } = new OptimizerConfig();
 }

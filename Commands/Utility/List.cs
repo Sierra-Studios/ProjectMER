@@ -1,9 +1,7 @@
-using System.Text;
 using CommandSystem;
 using LabApi.Features.Permissions;
 using NorthwoodLib.Pools;
 using ProjectMER.Features;
-using ProjectMER.Features.Serializable;
 using Utils.NonAllocLINQ;
 
 namespace ProjectMER.Commands.Utility;
@@ -34,20 +32,20 @@ public class List : ICommand
 			return false;
 		}
 
-		StringBuilder builder = StringBuilderPool.Shared.Rent();
+		var builder = StringBuilderPool.Shared.Rent();
 
 		builder.AppendLine();
 		builder.AppendLine();
 		builder.Append("<color=green><b>List of maps:</b></color>");
 
-		List<MapStatus> mapStatuses = ListPool<MapStatus>.Shared.Rent();
+		var mapStatuses = ListPool<MapStatus>.Shared.Rent();
 
-		foreach (string filePath in Directory.GetFiles(ProjectMer.MapsDir))
+		foreach (var filePath in Directory.GetFiles(ProjectMer.MapsDir))
 			mapStatuses.AddIfNotContains(new MapStatus(Path.GetFileNameWithoutExtension(filePath)));
-		foreach (string loaderMapName in MapUtils.LoadedMaps.Keys)
+		foreach (var loaderMapName in MapUtils.LoadedMaps.Keys)
 			mapStatuses.AddIfNotContains(new MapStatus(loaderMapName));
 
-		foreach (MapStatus mapStatus in mapStatuses.OrderByDescending(x => x.IsLoaded).ThenByDescending(x => x.IsDirty))
+		foreach (var mapStatus in mapStatuses.OrderByDescending(x => x.IsLoaded).ThenByDescending(x => x.IsDirty))
 		{
 			builder.AppendLine();
 			builder.Append($"- {mapStatus}");
@@ -59,7 +57,7 @@ public class List : ICommand
 		builder.AppendLine();
 		builder.Append("<color=orange><b>List of schematics:</b></color>");
 
-		foreach (string schematicName in MapUtils.GetAvailableSchematicNames())
+		foreach (var schematicName in MapUtils.GetAvailableSchematicNames())
 		{
 			builder.AppendLine();
 			builder.Append($"- <color=yellow>{schematicName}</color>");
@@ -74,7 +72,7 @@ public class List : ICommand
 		public MapStatus(string mapName)
 		{
 			MapName = mapName;
-			IsLoaded = MapUtils.LoadedMaps.TryGetValue(MapName, out MapSchematic map);
+			IsLoaded = MapUtils.LoadedMaps.TryGetValue(MapName, out var map);
 			IsDirty = map != null && map.IsDirty;
 		}
 
@@ -84,7 +82,7 @@ public class List : ICommand
 
 		public override readonly string ToString()
 		{
-			StringBuilder sb = StringBuilderPool.Shared.Rent(MapUtils.GetColoredMapName(MapName));
+			var sb = StringBuilderPool.Shared.Rent(MapUtils.GetColoredMapName(MapName));
 			sb.Append(" ");
 
 			if (IsLoaded && !IsDirty)

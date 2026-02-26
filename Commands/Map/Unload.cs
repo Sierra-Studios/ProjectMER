@@ -22,7 +22,7 @@ public class Unload : ICommand
 
 		if (arguments.Count == 0)
 		{
-			foreach (string mapName in MapUtils.LoadedMaps.Keys.ToList())
+			foreach (var mapName in MapUtils.LoadedMaps.Keys.ToList())
 			{
 				MapUtils.UnloadMap(mapName);
 			}

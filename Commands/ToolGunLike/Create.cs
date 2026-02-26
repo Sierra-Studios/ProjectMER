@@ -1,6 +1,4 @@
-using System.Text;
 using CommandSystem;
-using Exiled.API.Features;
 using LabApi.Features.Permissions;
 using NorthwoodLib.Pools;
 using ProjectMER.Configs;
@@ -33,16 +31,16 @@ public class Create : ICommand
 			return false;
 		}
 
-		Player? player = Player.Get(sender)!;
+		var player = Player.Get(sender)!;
 
 		if (arguments.Count == 0)
 		{
-			StringBuilder sb = StringBuilderPool.Shared.Rent();
+			var sb = StringBuilderPool.Shared.Rent();
 			sb.AppendLine();
 			sb.Append("List of all spawnable objects:");
 			sb.AppendLine();
 			sb.AppendLine();
-			foreach (ToolGunObjectType objectType in ToolGunItem.TypesDictionary.Keys)
+			foreach (var objectType in ToolGunItem.TypesDictionary.Keys.OrderBy(x => x))
 			{
 				if (objectType == ToolGunObjectType.Schematic)
 					continue;
@@ -58,7 +56,7 @@ public class Create : ICommand
 			return true;
 		}
 
-		Vector3 position = Vector3.zero;
+		var position = Vector3.zero;
 		if (arguments.Count >= 4 && !TryGetVector(arguments.At(1), arguments.At(2), arguments.At(3), out position))
 		{
 			response = "Invalid arguments. Usage: mp create <object> <posX> <posY> <posZ>";
@@ -67,7 +65,7 @@ public class Create : ICommand
 
 		if (arguments.Count == 1)
 		{
-			if (!ToolGunHandler.Raycast(player, out RaycastHit hit))
+			if (!ToolGunHandler.Raycast(player, out var hit))
 			{
 				response = "Couldn't find a valid surface on which the object could be spawned!";
 				return false;
@@ -81,7 +79,7 @@ public class Create : ICommand
 			return false;
 		}
 
-		string objectName = arguments.At(0);
+		var objectName = arguments.At(0);
 
 		if (Enum.TryParse(objectName, true, out ToolGunObjectType parsedEnum) && Enum.IsDefined(typeof(ToolGunObjectType), parsedEnum))
 		{

@@ -3,14 +3,14 @@ using Mirror;
 using ProjectMER.Events.Handlers;
 using ProjectMER.Features.Enums;
 using ProjectMER.Features.Serializable.Schematics;
+using ProjectMER.Features.Utility;
 using UnityEngine;
 using Utf8Json;
 using Utils.NonAllocLINQ;
-using Object = UnityEngine.Object;
 
 namespace ProjectMER.Features.Objects;
 
-public class SchematicObject : MonoBehaviour
+public class SchematicObject : CachedMonobehaviour<SchematicObject>
 {
 	/// <summary>
 	/// Gets the schematic name.
@@ -75,7 +75,7 @@ public class SchematicObject : MonoBehaviour
 				return _attachedBlocks;
 
 			_attachedBlocks.Clear();
-			foreach (Transform transform in GetComponentsInChildren<Transform>())
+			foreach (var transform in GetComponentsInChildren<Transform>())
 			{
 				if (transform == this.transform)
 					continue;
@@ -95,7 +95,7 @@ public class SchematicObject : MonoBehaviour
 				return _networkIdentities;
 
 			_networkIdentities.Clear();
-			foreach (GameObject block in AttachedBlocks)
+			foreach (var block in AttachedBlocks)
 			{
 				if (block.TryGetComponent(out NetworkIdentity networkIdentity))
 					_networkIdentities.Add(networkIdentity);
@@ -113,7 +113,7 @@ public class SchematicObject : MonoBehaviour
 				return _adminToyBases;
 
 			_adminToyBases.Clear();
-			foreach (NetworkIdentity netId in NetworkIdentities)
+			foreach (var netId in NetworkIdentities)
 			{
 				if (netId.TryGetComponent(out AdminToyBase adminToyBase))
 					_adminToyBases.Add(adminToyBase);
@@ -147,11 +147,11 @@ public class SchematicObject : MonoBehaviour
 
 	private void CreateRecursiveFromID(int id, List<SchematicBlockData> blocks, Transform parentGameObject)
 	{
-		Transform childGameObjectTransform = CreateObject(blocks.Find(c => c.ObjectId == id), parentGameObject) ?? transform; // Create the object first before creating children.
-		int[] parentSchematics = blocks.Where(bl => bl.BlockType == BlockType.Schematic).Select(bl => bl.ObjectId).ToArray();
+		var childGameObjectTransform = CreateObject(blocks.Find(c => c.ObjectId == id), parentGameObject) ?? transform; // Create the object first before creating children.
+		var parentSchematics = blocks.Where(bl => bl.BlockType == BlockType.Schematic).Select(bl => bl.ObjectId).ToArray();
 
 		// Gets all the ObjectIds of all the schematic blocks inside "blocks" argument.
-		foreach (SchematicBlockData block in blocks.FindAll(c => c.ParentId == id))
+		foreach (var block in blocks.FindAll(c => c.ParentId == id))
 		{
 			if (parentSchematics.Contains(block.ParentId)) // The block is a child of some schematic inside "parentSchematics" array, therefore it will be skipped to avoid spawning it and its children twice.
 				continue;
@@ -165,12 +165,12 @@ public class SchematicObject : MonoBehaviour
 		if (block == null)
 			return null;
 
-		GameObject gameObject = block.Create(this, parentTransform);
+		var gameObject = block.Create(this, parentTransform);
 		NetworkServer.Spawn(gameObject);
 
 		ObjectFromId.Add(block.ObjectId, gameObject.transform);
 
-		if (block.BlockType != BlockType.Light && TryGetAnimatorController(block.AnimatorName, out RuntimeAnimatorController animatorController))
+		if (block.BlockType != BlockType.Light && TryGetAnimatorController(block.AnimatorName, out var animatorController))
 			_animators.Add(gameObject, animatorController);
 
 		return gameObject.transform;
@@ -183,11 +183,11 @@ public class SchematicObject : MonoBehaviour
 		if (string.IsNullOrEmpty(animatorName))
 			return false;
 
-		Object? animatorObject = AssetBundle.GetAllLoadedAssetBundles().FirstOrDefault(x => x.mainAsset.name == animatorName)?.LoadAllAssets().First(x => x is RuntimeAnimatorController);
+		var animatorObject = AssetBundle.GetAllLoadedAssetBundles().FirstOrDefault(x => x.mainAsset.name == animatorName)?.LoadAllAssets().First(x => x is RuntimeAnimatorController);
 
 		if (animatorObject is null)
 		{
-			string path = Path.Combine(DirectoryPath, animatorName);
+			var path = Path.Combine(DirectoryPath, animatorName);
 
 			if (!File.Exists(path))
 			{
@@ -204,11 +204,11 @@ public class SchematicObject : MonoBehaviour
 
 	private bool AddAnimators()
 	{
-		bool isAnimated = false;
+		var isAnimated = false;
 		if (!_animators.IsEmpty())
 		{
 			isAnimated = true;
-			foreach (KeyValuePair<GameObject, RuntimeAnimatorController> pair in _animators)
+			foreach (var pair in _animators)
 				pair.Key.AddComponent<Animator>().runtimeAnimatorController = pair.Value;
 		}
 
@@ -219,14 +219,14 @@ public class SchematicObject : MonoBehaviour
 
 	private bool AddRigidbodies()
 	{
-		bool hasRigidbodies = false;
-		string rigidbodyPath = Path.Combine(DirectoryPath, $"{Name}-Rigidbodies.json");
+		var hasRigidbodies = false;
+		var rigidbodyPath = Path.Combine(DirectoryPath, $"{Name}-Rigidbodies.json");
 		if (!File.Exists(rigidbodyPath))
 			return false;
 
-		foreach (KeyValuePair<int, SerializableRigidbody> dict in JsonSerializer.Deserialize<Dictionary<int, SerializableRigidbody>>(File.ReadAllText(rigidbodyPath)))
+		foreach (var dict in JsonSerializer.Deserialize<Dictionary<int, SerializableRigidbody>>(File.ReadAllText(rigidbodyPath)))
 		{
-			if (!ObjectFromId.TryGetValue(dict.Key, out Transform transform))
+			if (!ObjectFromId.TryGetValue(dict.Key, out var transform))
 				continue;
 
 			if (!transform.gameObject.TryGetComponent(out Rigidbody rigidbody))

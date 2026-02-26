@@ -1,6 +1,8 @@
 using AdminToys;
 using LabApi.Features.Wrappers;
 using Mirror;
+using ProjectMER.Features.Attributes;
+using ProjectMER.Features.Enums;
 using ProjectMER.Features.Extensions;
 using ProjectMER.Features.Interfaces;
 using UnityEngine;
@@ -30,20 +32,25 @@ public class SerializableLight : SerializableObject, IIndicatorDefinition
 
 	public float InnerSpotAngle { get; set; } = 0f;
 
+	[NoModifyProperty]
+	public override ToolGunObjectType ObjectType { get; set; } = ToolGunObjectType.Light;
+	public override void Setup(string key, MapSchematic map)
+	{
+		map.SpawnObject(key, this);
+	}
+
 	[YamlIgnore]
 	public override Vector3 Scale { get; set; }
 
 	public override GameObject SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
-		LightSourceToy light = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.LightSource) : instance.GetComponent<LightSourceToy>();
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
+		var light = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.LightSource) : instance.GetComponent<LightSourceToy>();
 		_prevIndex = Index;
 
-		light.transform.SetPositionAndRotation(position, rotation);
+		SetPosAndRot(light);
 		light.NetworkMovementSmoothing = 60;
 
-		light.NetworkLightColor = ColorUtility.TryParseHtmlString(Color, out Color color) ? color : UnityEngine.Color.magenta;
+		light.NetworkLightColor = ColorUtility.TryParseHtmlString(Color, out var color) ? color : UnityEngine.Color.magenta;
 		light.NetworkLightIntensity = Intensity;
 		light.NetworkLightRange = Range;
 		light.NetworkShadowType = Shadows;
@@ -61,16 +68,16 @@ public class SerializableLight : SerializableObject, IIndicatorDefinition
 
 	public GameObject SpawnOrUpdateIndicator(Room room, GameObject? instance = null)
 	{
-		PrimitiveObjectToy primitive = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.PrimitiveObject) : instance.GetComponent<PrimitiveObjectToy>();
-		Vector3 position = room.GetAbsolutePosition(Position);
+		var primitive = instance == null ? UnityEngine.Object.Instantiate(PrefabManager.PrimitiveObject) : instance.GetComponent<PrimitiveObjectToy>();
+		var position = room.GetAbsolutePosition(Position);
 
 		primitive.transform.position = position;
 		primitive.NetworkPrimitiveType = PrimitiveType.Sphere;
 		primitive.NetworkPrimitiveFlags = PrimitiveFlags.Visible;
 		primitive.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
 
-		_ = ColorUtility.TryParseHtmlString(Color, out Color color) ? color : UnityEngine.Color.magenta;
-		Color transparentColor = new Color(color.r, color.g, color.b, 0.9f);
+		_ = ColorUtility.TryParseHtmlString(Color, out var color) ? color : UnityEngine.Color.magenta;
+		var transparentColor = new Color(color.r, color.g, color.b, 0.9f);
 		primitive.NetworkMaterialColor = transparentColor;
 
 		return primitive.gameObject;

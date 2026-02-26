@@ -1,7 +1,6 @@
 ﻿using CommandSystem;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
-using ProjectMER.Features.Objects;
 using ProjectMER.Features.ToolGun;
 
 namespace ProjectMER.Commands.Modifying.Position.SubCommands;
@@ -29,14 +28,14 @@ public class Bring : ICommand
 			return false;
 		}
 
-		Player? player = Player.Get(sender);
+		var player = Player.Get(sender);
 		if (player is null)
 		{
 			response = "This command can't be run from the server console.";
 			return false;
 		}
 
-		if (!ToolGunHandler.TryGetSelectedMapObject(player, out MapEditorObject mapEditorObject))
+		if (!ToolGunHandler.TryGetSelectedMapObject(player, out var mapEditorObject))
 		{
 			response = "You need to select an object first!";
 			return false;

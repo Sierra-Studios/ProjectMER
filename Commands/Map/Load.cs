@@ -26,11 +26,11 @@ public class Load : ICommand
 			return false;
 		}
 
-		string mapName = arguments.At(0);
+		var mapName = arguments.At(0);
 
 		try
 		{
-			MapUtils.LoadMap(mapName);
+			MapUtils.LoadOrReload(mapName);
 		}
 		catch (Exception e)
 		{

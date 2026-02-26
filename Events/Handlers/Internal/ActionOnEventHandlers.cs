@@ -2,7 +2,6 @@ using System.Text.RegularExpressions;
 using LabApi.Events.Arguments.WarheadEvents;
 using LabApi.Events.CustomHandlers;
 using LabApi.Features.Wrappers;
-using MEC;
 using NorthwoodLib.Pools;
 using ProjectMER.Configs;
 using ProjectMER.Features;
@@ -20,18 +19,18 @@ public class ActionOnEventHandlers : CustomEventsHandler
 
 	internal void HandleActionList(List<string> list)
 	{
-		foreach (string element in list)
+		foreach (var element in list)
 		{
-			string[] actionSplit = element.Split(':');
-			string action = actionSplit[0];
-			string argument = actionSplit[1];
+			var actionSplit = element.Split(':');
+			var action = actionSplit[0];
+			var argument = actionSplit[1];
 
 			switch (action.ToLowerInvariant())
 			{
 				case "load":
 				case "l":
 					{
-						List<string> allMaps = ListPool<string>.Shared.Rent(Directory.GetFiles(ProjectMer.MapsDir).Select(Path.GetFileNameWithoutExtension));
+						var allMaps = ListPool<string>.Shared.Rent(Directory.GetFiles(ProjectMer.MapsDir).Select(Path.GetFileNameWithoutExtension));
 						HandleMapLoading(argument, allMaps);
 						ListPool<string>.Shared.Return(allMaps);
 						continue;
@@ -40,7 +39,7 @@ public class ActionOnEventHandlers : CustomEventsHandler
 				case "unload":
 				case "unl":
 					{
-						List<string> allMaps = ListPool<string>.Shared.Rent(MapUtils.LoadedMaps.Keys);
+						var allMaps = ListPool<string>.Shared.Rent(MapUtils.LoadedMaps.Keys);
 						HandleMapUnloading(argument, allMaps);
 						ListPool<string>.Shared.Return(allMaps);
 						continue;
@@ -64,8 +63,8 @@ public class ActionOnEventHandlers : CustomEventsHandler
 
 	private void HandleMapLoading(string argument, List<string> allMaps)
 	{
-		string[] orSplit = argument.Split('|', '|');
-		string[] andSplit = argument.Split(',');
+		var orSplit = argument.Split('|', '|');
+		var andSplit = argument.Split(',');
 
 		if (orSplit.Length > 1 || andSplit.Length > 1)
 		{
@@ -77,17 +76,17 @@ public class ActionOnEventHandlers : CustomEventsHandler
 			return;
 		}
 
-		foreach (string mapName in allMaps)
+		foreach (var mapName in allMaps)
 		{
 			if (Regex.IsMatch(mapName, WildCardToRegular(argument)))
-				MapUtils.LoadMap(mapName);
+				MapUtils.LoadOrReload(mapName);
 		}
 	}
 
 	private void HandleMapUnloading(string argument, List<string> allMaps)
 	{
-		string[] orSplit = argument.Split('|', '|');
-		string[] andSplit = argument.Split(',');
+		var orSplit = argument.Split('|', '|');
+		var andSplit = argument.Split(',');
 
 		if (orSplit.Length > 1 || andSplit.Length > 1)
 		{
@@ -99,7 +98,7 @@ public class ActionOnEventHandlers : CustomEventsHandler
 			return;
 		}
 
-		foreach (string mapName in allMaps)
+		foreach (var mapName in allMaps)
 		{
 			if (Regex.IsMatch(mapName, WildCardToRegular(argument)))
 				MapUtils.UnloadMap(mapName);

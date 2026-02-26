@@ -18,5 +18,5 @@ public enum ToolGunObjectType
 	Teleport = 12,
 	Interactable = 13,
 	Waypoint = 14,
-	PrefabObject = 15,
+	Prefab = 15,
 }

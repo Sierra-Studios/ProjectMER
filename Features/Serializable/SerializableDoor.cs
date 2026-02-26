@@ -1,8 +1,8 @@
 using Interactables.Interobjects.DoorUtils;
 using LabApi.Features.Wrappers;
 using Mirror;
+using ProjectMER.Features.Attributes;
 using ProjectMER.Features.Enums;
-using ProjectMER.Features.Extensions;
 using UnityEngine;
 
 namespace ProjectMER.Features.Serializable;
@@ -15,11 +15,23 @@ public class SerializableDoor : SerializableObject
 	public DoorPermissionFlags RequiredPermissions { get; set; } = DoorPermissionFlags.None;
 	public bool RequireAll { get; set; } = true;
 
+	[NoModifyProperty]
+	public override ToolGunObjectType ObjectType { get; set; } = ToolGunObjectType.Door;
+	public override void Setup(string key, MapSchematic map)
+	{
+		var vanillaDoor = Door.Get(key);
+		if (vanillaDoor != null)
+		{
+			SetupDoor(vanillaDoor.Base);
+			return;
+		}
+
+		map.SpawnObject(key, this);
+	}
+
 	public override GameObject SpawnOrUpdateObject(Room? room = null, GameObject? instance = null)
 	{
 		DoorVariant doorVariant;
-		Vector3 position = room.GetAbsolutePosition(Position);
-		Quaternion rotation = room.GetAbsoluteRotation(Rotation);
 		_prevIndex = Index;
 
 		if (instance == null)
@@ -33,7 +45,7 @@ public class SerializableDoor : SerializableObject
 			doorVariant = instance.GetComponent<DoorVariant>();
 		}
 
-		doorVariant.transform.SetPositionAndRotation(position, rotation);
+		SetPosAndRot(doorVariant);
 		doorVariant.transform.localScale = Scale;
 
 		_prevType = DoorType;
@@ -56,7 +68,7 @@ public class SerializableDoor : SerializableObject
 	{
 		get
 		{
-			DoorVariant prefab = DoorType switch
+			var prefab = DoorType switch
 			{
 				DoorType.Lcz => PrefabManager.DoorLcz,
 				DoorType.Hcz => PrefabManager.DoorHcz,

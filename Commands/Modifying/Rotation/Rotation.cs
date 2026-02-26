@@ -40,7 +40,7 @@ public class Rotation : ParentCommand
 			return false;
 		}
 
-		Player? player = Player.Get(sender);
+		var player = Player.Get(sender);
 		if (player is null)
 		{
 			response = "This command can't be run from the server console.";

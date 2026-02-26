@@ -1,4 +1,3 @@
-using System;
 using LabApi.Features.Wrappers;
 using ProjectMER.Features.Serializable;
 using UnityEngine;
@@ -20,9 +19,9 @@ public class TeleportObject : MonoBehaviour
 
 	public TeleportObject? GetRandomTarget()
 	{
-		string targetId = Base.Targets.RandomItem();
+		var targetId = Base.Targets.RandomItem();
 
-		foreach (TeleportObject teleportObject in FindObjectsByType<TeleportObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+		foreach (var teleportObject in FindObjectsByType<TeleportObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
 		{
 			if (teleportObject._mapEditorObject.Id != targetId)
 				continue;
@@ -35,18 +34,18 @@ public class TeleportObject : MonoBehaviour
 
 	public void OnTriggerEnter(Collider other)
 	{
-		Player? player = Player.Get(other.gameObject);
+		var player = Player.Get(other.gameObject);
 		if (player is null)
 			return;
 
 		if (NextTimeUse > DateTime.Now)
 			return;
 
-		TeleportObject? target = GetRandomTarget();
+		var target = GetRandomTarget();
 		if (target == null)
 			return;
 
-		DateTime dateTime = DateTime.Now.AddSeconds(Base.Cooldown);
+		var dateTime = DateTime.Now.AddSeconds(Base.Cooldown);
 		NextTimeUse = dateTime;
 		target.NextTimeUse = dateTime;
 

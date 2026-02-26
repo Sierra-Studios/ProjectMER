@@ -1,7 +1,6 @@
 using CommandSystem;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
-using ProjectMER.Features.Objects;
 using ProjectMER.Features.ToolGun;
 
 namespace ProjectMER.Commands.ToolGunLike;
@@ -25,7 +24,7 @@ public class Delete : ICommand
 			return false;
 		}
 
-		Player? player = Player.Get(sender);
+		var player = Player.Get(sender);
 		if (player is null)
 		{
 			response = "This command can't be run from the server console.";
@@ -34,8 +33,8 @@ public class Delete : ICommand
 
 		if (arguments.Count > 0)
 		{
-			string id = arguments.At(0);
-			if (ToolGunHandler.TryGetObjectById(id, out MapEditorObject idObject))
+			var id = arguments.At(0);
+			if (ToolGunHandler.TryGetObjectById(id, out var idObject))
 			{
 				ToolGunHandler.DeleteObject(idObject);
 				response = "You've successfully deleted the object!";
@@ -46,7 +45,7 @@ public class Delete : ICommand
 			return false;
 		}
 
-		if (ToolGunHandler.TryGetMapObject(player, out MapEditorObject mapEditorObject))
+		if (ToolGunHandler.TryGetMapObject(player, out var mapEditorObject))
 		{
 			ToolGunHandler.DeleteObject(mapEditorObject);
 			response = "You've successfully deleted the object!";

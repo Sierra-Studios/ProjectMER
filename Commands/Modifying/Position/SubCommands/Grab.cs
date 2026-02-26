@@ -29,14 +29,14 @@ public class Grab : ICommand
 			return false;
 		}
 
-		Player? player = Player.Get(sender);
+		var player = Player.Get(sender);
 		if (player is null)
 		{
 			response = "This command can't be run from the server console.";
 			return false;
 		}
 
-		if (!ToolGunHandler.TryGetSelectedMapObject(player, out MapEditorObject mapEditorObject))
+		if (!ToolGunHandler.TryGetSelectedMapObject(player, out var mapEditorObject))
 		{
 			response = "You need to select an object first!";
 			return false;
@@ -47,7 +47,7 @@ public class Grab : ICommand
 			Timing.KillCoroutines(GrabbingPlayers[player]);
 			GrabbingPlayers.Remove(player);
 
-			Room room = mapEditorObject.Room;
+			var room = mapEditorObject.Room;
 			mapEditorObject.Base.Position = room.Name == MapGeneration.RoomName.Outside ? mapEditorObject.transform.position : mapEditorObject.Room.Transform.InverseTransformPoint(mapEditorObject.transform.position);
 			mapEditorObject.UpdateObjectAndCopies();
 
@@ -63,37 +63,58 @@ public class Grab : ICommand
 
 	private IEnumerator<float> GrabbingCoroutine(Player player, MapEditorObject mapEditorObject)
 	{
-		Vector3 position = player.Camera.position;
-		float multiplier = Vector3.Distance(position, mapEditorObject.transform.position);
-		Vector3 prevPos = position + (player.Camera.forward * multiplier);
+		var position = player.Camera.position;
+		var multiplier = Vector3.Distance(position, mapEditorObject.transform.position);
+		var prevPos = position + (player.Camera.forward * multiplier);
 
 		while (true)
 		{
 			yield return Timing.WaitForSeconds(0.1f);
-
-			if (mapEditorObject == null || !ToolGunHandler.TryGetSelectedMapObject(player, out _))
-				break;
-
-			Vector3 newPos = mapEditorObject.transform.position = player.Camera.position + (player.Camera.forward * multiplier);
-
-			if (prevPos == newPos)
-				continue;
-
-			prevPos = newPos;
-			mapEditorObject.transform.position = prevPos;
-			if (mapEditorObject.Base is SerializableDoor _)
+			try
 			{
-				NetworkServer.UnSpawn(mapEditorObject.gameObject);
-				NetworkServer.Spawn(mapEditorObject.gameObject);
+				if (TheAction(player, mapEditorObject, prevPos, multiplier)) break;
+			}
+			catch (Exception e)
+			{
+				Logger.Error(e);
 			}
 		}
 
 		GrabbingPlayers.Remove(player);
-		if (mapEditorObject != null)
+		if (mapEditorObject)
 		{
 			mapEditorObject.Base.Position = mapEditorObject.Room.Transform.InverseTransformPoint(mapEditorObject.transform.position);
 			mapEditorObject.UpdateObjectAndCopies();
 		}
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="player"></param>
+	/// <param name="mapEditorObject"></param>
+	/// <param name="prevPos"></param>
+	/// <param name="multiplier"></param>
+	/// <returns>True if should break, False if should continue</returns>
+	private bool TheAction(Player player, MapEditorObject mapEditorObject, Vector3 prevPos, float multiplier)
+	{
+		if (mapEditorObject == null || !ToolGunHandler.TryGetSelectedMapObject(player, out _))
+			return true;
+
+		var newPos = mapEditorObject.transform.position = player.Camera.position + (player.Camera.forward * multiplier);
+
+		if (prevPos == newPos)
+			return false;
+
+		prevPos = newPos;
+		mapEditorObject.transform.position = prevPos;
+		if (mapEditorObject.Base is SerializableDoor _)
+		{
+			NetworkServer.UnSpawn(mapEditorObject.gameObject);
+			NetworkServer.Spawn(mapEditorObject.gameObject);
+		}
+
+		return false;
 	}
 
 	/// <summary>

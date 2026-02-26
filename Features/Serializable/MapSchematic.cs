@@ -52,8 +52,8 @@ public class MapSchematic
 
 	public Dictionary<string, SerializableWaypoint> Waypoints { get; set; } = [];
 
-	public Dictionary<string, SerializablePrefabObject> PrefabObjects { get; set; } = [];
-	
+	public Dictionary<string, SerializablePrefabObject> Prefabs { get; set; } = [];
+
 	public List<MapEditorObject> SpawnedObjects = [];
 
 	public MapSchematic Merge(MapSchematic other)
@@ -73,7 +73,7 @@ public class MapSchematic
 		Teleports.AddRange(other.Teleports);
 		Lockers.AddRange(other.Lockers);
 		Waypoints.AddRange(other.Waypoints);
-		PrefabObjects.AddRange(other.PrefabObjects);
+		Prefabs.AddRange(other.Prefabs);
 		
 		return this;
 	}
@@ -85,7 +85,6 @@ public class MapSchematic
 
 		SpawnedObjects.Clear();
 
-		//TODO: Too much repeating
 		Primitives.ForEach(kVP => SpawnObject(kVP.Key, kVP.Value));
 		Lights.ForEach(kVP => SpawnObject(kVP.Key, kVP.Value));
 		Doors.ForEach(kVP =>
@@ -115,43 +114,9 @@ public class MapSchematic
 			SpawnObject(kVP.Key, kVP.Value);
 		});
 		Waypoints.ForEach(kVP => SpawnObject(kVP.Key, kVP.Value));
-		PrefabObjects.ForEach(kVP => SpawnObject(kVP.Key, kVP.Value));
+		Prefabs.ForEach(kVP => SpawnObject(kVP.Key, kVP.Value));
 	}
 
-	/*
-	public void SpawnObject<T>(string id, T serializableObject) where T : SerializableObject
-	{
-		List<Room> rooms = serializableObject.GetRooms();
-		HashSet<string> roomNamesAlreadyGoneThrough = [];
-		foreach (Room room in rooms)
-		{
-			if (roomNamesAlreadyGoneThrough.Contains(room.Name.ToString())) continue;
-			if (serializableObject.Room != room.Name.ToString()) continue;
-			GameObject? gameObject = null;
-				
-			try
-			{
-				gameObject = serializableObject.SafeSpawn(room);
-			}
-			catch (Exception e)
-			{
-				Logger.Error(e);
-			}
-
-			if (gameObject == null)
-			{
-				continue;
-			}
-
-			MapEditorObject mapEditorObject = gameObject.AddComponent<MapEditorObject>().Init(serializableObject, Name, id, room);
-			SpawnedObjects.Add(mapEditorObject);
-		}
-
-		ListPool<Room>.Shared.Return(rooms);
-	}
-	 */
-	
-	//Requires the most changes, is most important.
 	public void SpawnObject<T>(string id, T serializableObject) where T : SerializableObject
 	{
 		List<Room> rooms = serializableObject.GetRooms();
@@ -159,22 +124,9 @@ public class MapSchematic
 		{
 			if (serializableObject.Index < 0 || serializableObject.Index == room.GetRoomIndex())
 			{
-				GameObject? gameObject = null;
-				
-				try
-				{
-					gameObject = serializableObject.SafeSpawn(room);
-				}
-				catch (Exception e)
-				{
-					Logger.Error(e);
-				}
-
+				GameObject? gameObject = serializableObject.SafeSpawn(room);
 				if (gameObject == null)
-				{
-					Logger.Info("Continued");
 					continue;
-				}
 
 				MapEditorObject mapEditorObject = gameObject.AddComponent<MapEditorObject>().Init(serializableObject, Name, id, room);
 				SpawnedObjects.Add(mapEditorObject);
@@ -196,7 +148,6 @@ public class MapSchematic
 		}
 	}
 
-	//TODO: Simplify
 	public bool TryAddElement<T>(string id, T serializableObject) where T : SerializableObject
 	{
 		bool dirtyPrevValue = IsDirty;
@@ -246,15 +197,14 @@ public class MapSchematic
 
 		if (Waypoints.TryAdd(id, serializableObject))
 			return true;
-
-		if (PrefabObjects.TryAdd(id, serializableObject))
+		
+		if (Prefabs.TryAdd(id, serializableObject))
 			return true;
 
 		IsDirty = dirtyPrevValue;
 		return false;
 	}
 
-	//TODO: Simplify
 	public bool TryRemoveElement(string id)
 	{
 		bool dirtyPrevValue = IsDirty;
@@ -305,7 +255,7 @@ public class MapSchematic
 		if (Waypoints.Remove(id))
 			return true;
 		
-		if (PrefabObjects.Remove(id))
+		if (Prefabs.Remove(id))
 			return true;
 
 		IsDirty = dirtyPrevValue;

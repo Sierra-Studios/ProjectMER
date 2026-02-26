@@ -16,11 +16,11 @@ public static class ExperimentalWeaponLockerGlobalLimitsPatch
 		if (!__instance.transform.TryGetComponentInParent(out MapEditorObject _))
 			return true;
 
-		List<int> compatibleLoot = ListPool<int>.Shared.Rent();
+		var compatibleLoot = ListPool<int>.Shared.Rent();
 
-		for (int i = 0; i < __instance.Loot.Length; i++)
+		for (var i = 0; i < __instance.Loot.Length; i++)
 		{
-			LockerLoot loot = __instance.Loot[i];
+			var loot = __instance.Loot[i];
 
 			if (loot.RemainingUses <= 0)
 				continue;
@@ -28,14 +28,14 @@ public static class ExperimentalWeaponLockerGlobalLimitsPatch
 			if (ch.AcceptableItems.Length > 0 && !ch.AcceptableItems.Contains(loot.TargetItem))
 				continue;
 
-			for (int x = 0; x <= loot.ProbabilityPoints; x++)
+			for (var x = 0; x <= loot.ProbabilityPoints; x++)
 				compatibleLoot.Add(i);
 		}
 
 		if (compatibleLoot.Count > 0)
 		{
-			int randLoot = compatibleLoot[Random.Range(0, compatibleLoot.Count)];
-			LockerLoot loot = __instance.Loot[randLoot];
+			var randLoot = compatibleLoot[Random.Range(0, compatibleLoot.Count)];
+			var loot = __instance.Loot[randLoot];
 
 			ch.SpawnItem(loot.TargetItem, Random.Range(loot.MinPerChamber, loot.MaxPerChamber + 1));
 			loot.RemainingUses--;

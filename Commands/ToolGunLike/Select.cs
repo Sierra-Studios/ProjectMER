@@ -1,9 +1,6 @@
 using CommandSystem;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
-using ProjectMER.Features;
-using ProjectMER.Features.Objects;
-using ProjectMER.Features.Serializable;
 using ProjectMER.Features.ToolGun;
 
 namespace ProjectMER.Commands.ToolGunLike;
@@ -30,7 +27,7 @@ public class Select : ICommand
 			return false;
 		}
 
-		Player? player = Player.Get(sender);
+		var player = Player.Get(sender);
 		if (player is null)
 		{
 			response = "This command can't be run from the server console.";
@@ -39,8 +36,8 @@ public class Select : ICommand
 
 		if (arguments.Count > 0)
 		{
-			string id = arguments.At(0);
-			if (ToolGunHandler.TryGetObjectById(id, out MapEditorObject idObject))
+			var id = arguments.At(0);
+			if (ToolGunHandler.TryGetObjectById(id, out var idObject))
 			{
 				ToolGunHandler.SelectObject(player, idObject);
 				response = "You've successfully selected the object!";
@@ -52,7 +49,7 @@ public class Select : ICommand
 		}
 
 		// Try getting and selecting the object.
-		if (ToolGunHandler.TryGetMapObject(player, out MapEditorObject mapEditorObject))
+		if (ToolGunHandler.TryGetMapObject(player, out var mapEditorObject))
 		{
 			ToolGunHandler.SelectObject(player, mapEditorObject);
 			response = "You've successfully selected the object!";
@@ -60,7 +57,7 @@ public class Select : ICommand
 		}
 
 		// If object wasn't found deselect currently selected object.
-		if (ToolGunHandler.TryGetSelectedMapObject(player, out MapEditorObject _))
+		if (ToolGunHandler.TryGetSelectedMapObject(player, out var _))
 		{
 			ToolGunHandler.SelectObject(player, null!);
 			response = "You've successfully unselected the object!";

@@ -109,7 +109,7 @@ public static class PrefabManager
 	
 	public static void RegisterPrefabs()
 	{
-		foreach (GameObject gameObject in NetworkClient.prefabs.Values)
+		foreach (var gameObject in NetworkClient.prefabs.Values)
 		{
 			if (gameObject.TryGetComponent(out PrimitiveObjectToy primitiveObjectToy))
 			{
@@ -292,7 +292,7 @@ public static class PrefabManager
 		rotation.GetValueOrDefault();
 		if (!rotation.HasValue)
 			rotation = new Quaternion?(Quaternion.identity);
-		GameObject gameObject2 = UnityEngine.Object.Instantiate<GameObject>(gameObject1, position, rotation.Value);
+		var gameObject2 = UnityEngine.Object.Instantiate<GameObject>(gameObject1, position, rotation.Value);
 		StructurePositionSync component;
 		if (gameObject2.TryGetComponent<StructurePositionSync>(out component))
 		{

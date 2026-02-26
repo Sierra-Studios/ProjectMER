@@ -3,10 +3,10 @@ using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.CustomHandlers;
 using LabApi.Loader.Features.Paths;
 using MEC;
-using ProjectMER.Configs;
 using ProjectMER.Events.Handlers.Internal;
 using ProjectMER.Features;
 using ProjectMER.Features.Extensions;
+using ProjectMER.Features.Serializable;
 using ProjectMER.Features.ToolGun;
 
 namespace ProjectMER;
@@ -34,12 +34,14 @@ public class Points : CustomEventsHandler
         base.OnServerRoundRestarted();
     }
 
-    
+    public static MEROptimizer.Application.MEROptimizer Application;
 
     public static void Init(ProjectMer mer)
     {
         Instance = new Points();
         ProjectMer.Singleton = mer;
+        
+        SerializableObject.RegisterAll();
         
         CustomHandlersManager.RegisterEventsHandler(Instance);
         
@@ -100,6 +102,9 @@ public class Points : CustomEventsHandler
             CustomHandlersManager.RegisterEventsHandler(ProjectMer.Singleton.AcionOnEventHandlers);
             CustomHandlersManager.RegisterEventsHandler(ProjectMer.Singleton.PickupEventsHandler);
         }
+
+        Application = new MEROptimizer.Application.MEROptimizer();
+        Application.Load(ProjectMer.Singleton.Config.OptimizerConfig);
         
         Start();
     }
@@ -139,7 +144,13 @@ public class Points : CustomEventsHandler
     public static void Kill()
     {
         End();
-
+        
+        Application.Unload();
+        Application = null;
+        
+        SerializableObject.UnregisterAll();
+        SerializableObject.ObjectToObjectType.Clear();
+        
         if (ProjectMer.Singleton == null)
         {
             Logger.Error("[Attempted unregistration] ProjectMer.Singleton is null, consider reporting to developer");

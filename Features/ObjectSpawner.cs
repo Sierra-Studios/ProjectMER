@@ -8,15 +8,20 @@ namespace ProjectMER.Features;
 
 public static class ObjectSpawner
 {
+	/// <summary>
+	/// Main method to spawn primitive.
+	/// </summary>
+	/// <param name="serializablePrimitive"></param>
+	/// <returns></returns>
 	public static PrimitiveObjectToy SpawnPrimitive(SerializablePrimitive serializablePrimitive)
 	{
-		GameObject gameObject = serializablePrimitive.SafeSpawn();
+		var gameObject = serializablePrimitive.SafeSpawn();
 		return gameObject.GetComponent<PrimitiveObjectToy>();
 	}
 
 	public static SchematicObject SpawnSchematic(SerializableSchematic serializableSchematic)
 	{
-		GameObject? gameObject = serializableSchematic.SafeSpawn();
+		var gameObject = serializableSchematic.SafeSpawn();
 		if (gameObject == null)
 			return null!;
 

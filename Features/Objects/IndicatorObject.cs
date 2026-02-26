@@ -2,7 +2,6 @@ using AdminToys;
 using Mirror;
 using NorthwoodLib.Pools;
 using ProjectMER.Features.Interfaces;
-using ProjectMER.Features.Serializable;
 using UnityEngine;
 
 namespace ProjectMER.Features.Objects;
@@ -16,14 +15,14 @@ public class IndicatorObject : MapEditorObject
 		if (mapEditorObject.Base is not IIndicatorDefinition indicatorDefinition)
 			return false;
 
-		if (TryGetIndicator(mapEditorObject, out IndicatorObject indicator))
+		if (TryGetIndicator(mapEditorObject, out var indicator))
 		{
 			indicatorDefinition.SpawnOrUpdateIndicator(mapEditorObject.Room, indicator.gameObject);
 		}
 		else
 		{
 			indicator = indicatorDefinition.SpawnOrUpdateIndicator(mapEditorObject.Room).AddComponent<IndicatorObject>();
-			BoxCollider collider = indicator.gameObject.AddComponent<BoxCollider>();
+			var collider = indicator.gameObject.AddComponent<BoxCollider>();
 			collider.isTrigger = true;
 			indicator.GetComponentsInChildren<NetworkIdentity>().ForEach(x => NetworkServer.Spawn(x.gameObject));
 			Dictionary.Add(indicator, mapEditorObject);
@@ -52,7 +51,7 @@ public class IndicatorObject : MapEditorObject
 
 	public static bool TryDestroyIndicator(MapEditorObject mapEditorObject)
 	{
-		if (!TryGetIndicator(mapEditorObject, out IndicatorObject indicator))
+		if (!TryGetIndicator(mapEditorObject, out var indicator))
 			return false;
 
 		if (Dictionary[indicator].TryGetComponent(out WaypointToy waypoint))
@@ -67,8 +66,8 @@ public class IndicatorObject : MapEditorObject
 
 	public static void ClearIndicators()
 	{
-		List<MapEditorObject> values = ListPool<MapEditorObject>.Shared.Rent(Dictionary.Values);
-		foreach (MapEditorObject mapEditorObject in values)
+		var values = ListPool<MapEditorObject>.Shared.Rent(Dictionary.Values);
+		foreach (var mapEditorObject in values)
 			TryDestroyIndicator(mapEditorObject);
 
 		ListPool<MapEditorObject>.Shared.Return(values);
@@ -79,9 +78,9 @@ public class IndicatorObject : MapEditorObject
 	{
 		ClearIndicators();
 
-		foreach (MapSchematic map in MapUtils.LoadedMaps.Values)
+		foreach (var map in MapUtils.LoadedMaps.Values)
 		{
-			foreach (MapEditorObject mapEditorObject in map.SpawnedObjects)
+			foreach (var mapEditorObject in map.SpawnedObjects)
 			{
 				TrySpawnOrUpdateIndicator(mapEditorObject);
 			}
