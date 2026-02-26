@@ -27,3 +27,4 @@ Once your plugin will load, it will create directory `LapAPI-beta/configs/Projec
 - Original plugin idea and code overhaul by [Killers0992](https://github.com/Killers0992)
 - Another code overhaul and documentation by [Nao](https://github.com/NaoUnderscore)
 - Testing the plugin by Cegła, The Jukers server staff and others
+- Math for MEROptimizer
