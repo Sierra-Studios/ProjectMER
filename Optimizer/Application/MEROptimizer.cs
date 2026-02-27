@@ -52,7 +52,7 @@ namespace MEROptimizer.Application
     {
       Instance = this;
       
-      MEROptimizer.IsDebug = config.Debug;
+      IsDebug = config.Debug;
       excludeCollidables = config.OptimizeOnlyNonCollidable;
 
       //temp
@@ -122,7 +122,7 @@ namespace MEROptimizer.Application
 
     public static void Debug(string message)
     {
-      if (!MEROptimizer.IsDebug) return;
+      if (!IsDebug) return;
 
 #if EXILED
       Exiled.API.Features.Log.Debug(message);
@@ -167,7 +167,7 @@ namespace MEROptimizer.Application
             continue;
           }
 
-          if (this.excludeCollidables && primitive.PrimitiveFlags.HasFlag(PrimitiveFlags.Collidable))
+          if (excludeCollidables && primitive.PrimitiveFlags.HasFlag(PrimitiveFlags.Collidable))
           {
             continue;
           }
@@ -195,27 +195,7 @@ namespace MEROptimizer.Application
 
     // --------------- EXILED/LabAPI Events
 
-#if EXILED
-    private void OnVerified(VerifiedEventArgs ev)
-    {
-      OnPlayerJoined(ev.Player);
-    }
-
-    private void OnSpawned(SpawnedEventArgs ev)
-    {
-      OnPlayerSpawned(ev.Player);
-    }
-
-    private void OnChangingSpectatedPlayer(ChangingSpectatedPlayerEventArgs ev)
-    {
-      if (ev.Player == null || ev.NewTarget == null) return;
-
-      Player oldTarget = null;
-      if (ev.OldTarget != null) oldTarget = ev.OldTarget;
-      OnPlayerChangedSpectator(ev.Player, oldTarget, ev.NewTarget);
-    }
-
-#else
+    
     private void OnJoined(PlayerJoinedEventArgs ev)
     {
       OnPlayerJoined(ev.Player);
@@ -230,7 +210,6 @@ namespace MEROptimizer.Application
     {
       OnPlayerChangedSpectator(ev.Player, ev.OldTarget, ev.NewTarget);
     }
-#endif
     private void OnWaitingForPlayers()
     {
       Clear();
@@ -257,7 +236,7 @@ namespace MEROptimizer.Application
 
     private void AddPlayerTrigger(Player player)
     {
-      MEROptimizer.Debug($"Adding PlayerTrigger to {player.DisplayName}({player.PlayerId}) !");
+      Debug($"Adding PlayerTrigger to {player.DisplayName}({player.PlayerId}) !");
       GameObject playerTrigger = new GameObject($"{player.PlayerId}_MERO_TRIGGER");
       playerTrigger.tag = "Player";
 
@@ -276,7 +255,7 @@ namespace MEROptimizer.Application
       AddPlayerTrigger(player);
       foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
       {
-        MEROptimizer.Debug($"Displaying static client sided primitives of {schematic.schematic.Name} to {player.DisplayName} because he just connected !");
+        Debug($"Displaying static client sided primitives of {schematic.schematic.Name} to {player.DisplayName} because he just connected !");
         schematic.SpawnClientPrimitives(player);
       }
     }
@@ -318,7 +297,7 @@ namespace MEROptimizer.Application
             {
               foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
               {
-                MEROptimizer.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {player.DisplayName} because he spawned as a spectator (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+                Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {player.DisplayName} because he spawned as a spectator (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
 
                 foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
                 {
@@ -347,7 +326,7 @@ namespace MEROptimizer.Application
             {
               foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
               {
-                MEROptimizer.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {player.DisplayName} because he spawned as a tutorial and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+                Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {player.DisplayName} because he spawned as a tutorial and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
 
                 foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
                 {
@@ -372,7 +351,7 @@ namespace MEROptimizer.Application
         {
           foreach (OptimizedSchematic schematic in optimizedSchematics)
           {
-            MEROptimizer.Debug($"Unspawning all clusters of {schematic.schematic.Name} to {player.DisplayName} because he just changed role (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+            Debug($"Unspawning all clusters of {schematic.schematic.Name} to {player.DisplayName} because he just changed role (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
             foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
             {
               if (!cluster.insidePlayers.Contains(player))
@@ -391,7 +370,7 @@ namespace MEROptimizer.Application
               {
                 foreach (OptimizedSchematic schematic in optimizedSchematics.Where(s => s != null && s.schematic != null))
                 {
-                  MEROptimizer.Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {player.DisplayName} because he spawned as a filmaker ( why ) and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
+                  Debug($"Spawning all clusters (as a fade spawn) of {schematic.schematic.Name} to {player.DisplayName} because he spawned as a filmaker ( why ) and based on the specified config he should see all of the map (ssbadbs : {shouldSpectatorsBeAffectedByPDS})");
 
                   foreach (PrimitiveCluster cluster in schematic.primitiveClusters)
                   {
@@ -447,7 +426,7 @@ namespace MEROptimizer.Application
 
       if (isDynamiclyDisabled)
       {
-        LabApi.Features.Console.Logger.Warn($"Skipping the optimisation of {ev.Schematic.name} because the plugin is dynamicly disabled by command (mero.disable)");
+        Logger.Warn($"Skipping the optimisation of {ev.Schematic.name} because the plugin is dynamicly disabled by command (mero.disable)");
         return;
       }
 

@@ -29,7 +29,7 @@ namespace MEROptimizer.Application.Components
       this.primitiveType = primitiveType;
       this.color = color;
       this.primitiveFlags = primitiveFlags;
-      this.netId = NetworkIdentity.GetNextNetworkId();
+      netId = NetworkIdentity.GetNextNetworkId();
       GenerateNetworkMessages();
     }
 
@@ -90,7 +90,7 @@ namespace MEROptimizer.Application.Components
         SpawnClientPrimitive(player);
       }
     }
-
+    
     public void SpawnClientPrimitive(Player target)
     {
       if (target == null || target.IsHost) return; // DO NOT SEND THIS TO THE DEDICATED OTHERWISE EVERYTHING WILL BROKE TRUST ME I LOST 3 MONTHS OF MY LIFE BECAUSE OF THIS

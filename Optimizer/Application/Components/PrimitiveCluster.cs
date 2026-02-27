@@ -39,9 +39,9 @@ namespace MEROptimizer.Application.Components
         numberOfPrimitivePerSpawn = MEROptimizer.numberOfPrimitivePerSpawn;
       }
 
-      float radius = this.GetComponent<SphereCollider>().radius;
-      displayClusterPrimitive = new ClientSidePrimitive(this.transform.position - new Vector3(0, 2000, 0),
-        this.transform.rotation, Vector3.one * (radius), PrimitiveType.Sphere, new Color(1, 0, 1, .4f), PrimitiveFlags.Visible);
+      float radius = GetComponent<SphereCollider>().radius;
+      displayClusterPrimitive = new ClientSidePrimitive(transform.position - new Vector3(0, 2000, 0),
+        transform.rotation, Vector3.one * (radius), PrimitiveType.Sphere, new Color(1, 0, 1, .4f), PrimitiveFlags.Visible);
     }
 
     public void OnDestroy()
@@ -67,7 +67,7 @@ namespace MEROptimizer.Application.Components
 
       if (player == null) return;
 
-      if (!Application.MEROptimizer.ShouldTutorialsBeAffectedByDistanceSpawning && player.Role == PlayerRoles.RoleTypeId.Tutorial) return;
+      if (!MEROptimizer.ShouldTutorialsBeAffectedByDistanceSpawning && player.Role == PlayerRoles.RoleTypeId.Tutorial) return;
 
       if (player.Role == PlayerRoles.RoleTypeId.Filmmaker) return;
 
@@ -155,7 +155,7 @@ namespace MEROptimizer.Application.Components
 
       if (player == null) return;
 
-      if (!Application.MEROptimizer.ShouldTutorialsBeAffectedByDistanceSpawning && player.Role == PlayerRoles.RoleTypeId.Tutorial) return;
+      if (!MEROptimizer.ShouldTutorialsBeAffectedByDistanceSpawning && player.Role == PlayerRoles.RoleTypeId.Tutorial) return;
 
       if (player.Role == PlayerRoles.RoleTypeId.Filmmaker) return;
 

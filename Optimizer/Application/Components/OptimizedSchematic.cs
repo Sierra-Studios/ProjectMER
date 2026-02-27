@@ -197,13 +197,8 @@ namespace MEROptimizer.Application.Components
 
         foreach (Player player in Player.List.Where(p => p != null && !p.IsNpc))
         {
-          bool shouldSpawn = false;
-
           // Tutorials if config is enabled
-          if (!Application.MEROptimizer.ShouldTutorialsBeAffectedByDistanceSpawning && player.Role == RoleTypeId.Tutorial)
-          {
-            shouldSpawn = true;
-          }
+          bool shouldSpawn = !MEROptimizer.ShouldTutorialsBeAffectedByDistanceSpawning && player.Role == RoleTypeId.Tutorial;
 
           // Spectators if config is enabled
           if (!Application.MEROptimizer.shouldSpectatorsBeAffectedByPDS && (player.Role == RoleTypeId.Spectator || player.Role == RoleTypeId.Overwatch))

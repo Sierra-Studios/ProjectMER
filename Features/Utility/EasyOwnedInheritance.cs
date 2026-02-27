@@ -67,12 +67,12 @@ public class EasyOwnedInheritance<TSelf> where TSelf : EasyOwnedInheritance<TSel
 
     public virtual TSelf? CloneMyself()
     {
-        if (this.GetType().GetConstructor([]) == null)
+        if (GetType().GetConstructor([]) == null)
         {
-            Log.Error($"{this.GetType().Name} does not have default constructor");
+            Log.Error($"{GetType().Name} does not have default constructor");
             return null;
         }
-        return (TSelf)Activator.CreateInstance(this.GetType());
+        return (TSelf)Activator.CreateInstance(GetType());
     }
 
     public virtual bool ShouldAddInstance()
